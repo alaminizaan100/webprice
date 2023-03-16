@@ -1,28 +1,36 @@
-import ccxt
-import time
-import json
+from flask import Flask, jsonify
+import ccxtpro
 
-exchange_ids = ['binance', 'kucoin']
-symbols = ['BTC/USDT']
+app = Flask(__name__)
 
-exchanges = []
-for exchange_id in exchange_ids:
-    exchange_class = getattr(ccxt, exchange_id)
-    exchange = exchange_class({
+@app.route('/')
+def index():
+    binance = ccxtpro.binance({
         'enableRateLimit': True,
-        'rateLimit': 2000,
     })
-    exchange.load_markets()
-    exchanges.append(exchange)
+    kucoin = ccxtpro.kucoin({
+        'enableRateLimit': True,
+    })
 
-for exchange in exchanges:
-    for symbol in symbols:
-        exchange.websocket_subscribe('ticker', symbol)
-        time.sleep(0.1)
+    binance.subscribe('ticker', 'BTC/USDT')
+    kucoin.subscribe('ticker', 'BTC/USDT')
 
-while True:
-    for exchange in exchanges:
-        data = exchange.websocket_get('ticker')
-        if data is not None:
-            print(json.dumps(data))
-    time.sleep(0.1)
+    @binance.on('ticker')
+    async def binance_ticker_update(ticker, client):
+        if ticker['symbol'] == 'BTC/USDT':
+            binance_price = ticker['last']
+            print(f'Binance BTC/USDT price: {binance_price}')
+            return jsonify({'exchange': 'Binance', 'pair': 'BTC/USDT', 'price': binance_price})
+
+    @kucoin.on('ticker')
+    async def kucoin_ticker_update(ticker, client):
+        if ticker['symbol'] == 'BTC/USDT':
+            kucoin_price = ticker['last']
+            print(f'KuCoin BTC/USDT price: {kucoin_price}')
+            return jsonify({'exchange': 'KuCoin', 'pair': 'BTC/USDT', 'price': kucoin_price})
+
+    binance.start()
+    kucoin.start()
+
+if __name__ == '__main__':
+    app.run()

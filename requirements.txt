@@ -1,2 +1,2 @@
-ccxtpro
+ccxt
 flask

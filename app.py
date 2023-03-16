@@ -1,14 +1,14 @@
 from flask import Flask, jsonify, render_template
-import ccxtpro
+import ccxt
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    binance = ccxtpro.binance({
+    binance = ccxt.binance({
         'enableRateLimit': True,
     })
-    kucoin = ccxtpro.kucoin({
+    kucoin = ccxt.kucoin({
         'enableRateLimit': True,
     })
 

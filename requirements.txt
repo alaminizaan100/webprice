@@ -1,1 +1,2 @@
-ccxt==1.57.78
+ccxt
+flask

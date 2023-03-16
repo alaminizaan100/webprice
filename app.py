@@ -17,16 +17,12 @@ for exchange_id in exchange_ids:
 
 for exchange in exchanges:
     for symbol in symbols:
-        exchange.subscribe({
-            'name': 'ticker',
-            'symbol': symbol,
-            'interval': '1m'
-        })
+        exchange.websocket_subscribe('ticker', symbol)
         time.sleep(0.1)
 
 while True:
     for exchange in exchanges:
-        data = exchange.fetch_ticker(symbol)
+        data = exchange.websocket_get('ticker')
         if data is not None:
             print(json.dumps(data))
     time.sleep(0.1)

@@ -1,40 +1,38 @@
-from flask import Flask, jsonify, render_template
-import ccxt
+from flask import Flask, render_template
+from ccxt.websocket import ConnectionError
+import ccxt.async_support as ccxt
+import asyncio
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    binance = ccxt.binance({
-        'enableRateLimit': True,
-    })
-    kucoin = ccxt.kucoin({
-        'enableRateLimit': True,
-    })
+    # create a new async event loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
-    binance.subscribe('ticker', 'BTC/USDT')
-    kucoin.subscribe('ticker', 'BTC/USDT')
+    # create a new KuCoin websocket connection
+    kucoin_ws = ccxt.kucoin()
 
-    @binance.on('ticker')
-    async def binance_ticker_update(ticker, client):
-        if ticker['symbol'] == 'BTC/USDT':
-            binance_price = ticker['last']
-            print(f'Binance BTC/USDT price: {binance_price}')
-            return binance_price
+    # define the callback function to handle incoming messages
+    async def handle_message(message):
+        if 'data' in message:
+            # extract the price data from the message
+            price = message['data']['price']
 
-    @kucoin.on('ticker')
-    async def kucoin_ticker_update(ticker, client):
-        if ticker['symbol'] == 'BTC/USDT':
-            kucoin_price = ticker['last']
-            print(f'KuCoin BTC/USDT price: {kucoin_price}')
-            return kucoin_price
+            # render the price data on the HTML page
+            return render_template('index.html', price=price)
 
-    binance.start()
-    kucoin.start()
+    # start the websocket connection
+    async def start_websocket():
+        try:
+            await kucoin_ws.load_markets()
+            await kucoin_ws.subscribe('ticker', 'BTC/USDT')
+            await kucoin_ws.watch(handle_message)
+        except ConnectionError as e:
+            print(f"Failed to connect to KuCoin websocket: {e}")
 
-    binance_price = binance.fetch_ticker('BTC/USDT')['last']
-    kucoin_price = kucoin.fetch_ticker('BTC/USDT')['last']
-    return render_template('index.html', binance_price=binance_price, kucoin_price=kucoin_price)
+    loop.run_until_complete(start_websocket())
 
 if __name__ == '__main__':
     app.run()

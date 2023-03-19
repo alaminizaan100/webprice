@@ -1,6 +1,6 @@
 ccxt
 websocket
 
-
+jupyter
 flask
 gunicorn 

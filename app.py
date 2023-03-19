@@ -1,38 +1,28 @@
-from flask import Flask, render_template
-from ccxt.websocket import ConnectionError
-import ccxt.async_support as ccxt
-import asyncio
+import websocket
+import json
 
-app = Flask(__name__)
+def on_message(ws, message):
+    data = json.loads(message)
+    if data['e'] == 'error':
+        print(f"Error: {data['m']}")
+        return
+    if data['e'] == '24hrTicker':
+        symbol = data['s']
+        price = data['c']
+        print(f"{symbol}: {price}")
 
-@app.route('/')
-def index():
-    # create a new async event loop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+def on_error(ws, error):
+    print(f"Error: {error}")
 
-    # create a new KuCoin websocket connection
-    kucoin_ws = ccxt.kucoin()
+def on_close(ws):
+    print("Connection closed")
 
-    # define the callback function to handle incoming messages
-    async def handle_message(message):
-        if 'data' in message:
-            # extract the price data from the message
-            price = message['data']['price']
+def on_open(ws):
+    print("Connection opened")
+    ws.send('{"method": "SUBSCRIBE","params": ["!ticker@arr"],"id": 1}')
 
-            # render the price data on the HTML page
-            return render_template('index.html', price=price)
-
-    # start the websocket connection
-    async def start_websocket():
-        try:
-            await kucoin_ws.load_markets()
-            await kucoin_ws.subscribe('ticker', 'BTC/USDT')
-            await kucoin_ws.watch(handle_message)
-        except ConnectionError as e:
-            print(f"Failed to connect to KuCoin websocket: {e}")
-
-    loop.run_until_complete(start_websocket())
-
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp("wss://stream.binance.com:9443/ws/!ticker@arr", on_message = on_message, on_error = on_error, on_close = on_close)
+    ws.on_open = on_open
+    ws.run_forever()

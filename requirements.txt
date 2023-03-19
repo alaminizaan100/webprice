@@ -2,3 +2,4 @@ binance
 asyncio
 flask
 gunicorn 
+requests

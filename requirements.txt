@@ -1,6 +1,4 @@
-ccxt
-websocket
-
-
+binance
+asyncio
 flask
 gunicorn 

@@ -20,7 +20,7 @@ def binance():
             data_dict[symbol] = price
 
     def on_error(ws, error):
-        print(f"Error: {error})
+        print(f"Error: {error}")
 
     def on_close(ws):
         print("Connection closed")

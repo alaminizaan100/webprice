@@ -41,7 +41,7 @@ def binance():
     ws_thread.start()
 
     # Return the data as a JSON response
-    return render_template('index.html', data_dict=data_dict)
+    return render_template('templates/index.html', data_dict=data_dict)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Binance Coin Prices</title>
+</head>
+<body>
+    <h1>Binance Coin Prices</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Coin</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for symbol, price in data_dict.items() %}
+            <tr>
+                <td>{{ symbol }}</td>
+                <td>{{ price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

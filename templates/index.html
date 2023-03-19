@@ -1,26 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Binance Coin Prices</title>
+    <title>Binance Ticker</title>
 </head>
 <body>
-    <h1>Binance Coin Prices</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Coin</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for symbol, price in data_dict.items() %}
-            <tr>
-                <td>{{ symbol }}</td>
-                <td>{{ price }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h1>Binance Ticker</h1>
+    <div id="ticker-data"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
+    <script>
+        // Connect to the Flask-SocketIO server
+        var socket = io.connect();
+
+        // When the socket receives ticker data, display it on the webpage
+        socket.on('ticker', function(data) {
+            var tickerData = document.getElementById('ticker-data');
+            tickerData.innerHTML = JSON.stringify(data);
+        });
+    </script>
 </body>
 </html>
+

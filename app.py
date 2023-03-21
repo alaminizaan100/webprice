@@ -3,7 +3,7 @@ import asyncio
 from flask import Flask, render_template
 
 app = Flask(__name__)
-
+app.config['TIMEOUT'] = 180  # Set server timeout to 3 minutes
 async def scan_arbi(exchanges):
     result = []
     for exchange in exchanges:

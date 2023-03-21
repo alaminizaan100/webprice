@@ -1,25 +1,36 @@
-{% extends 'base.html' %}
-
-{% block content %}
-  <h1>Coin Data</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Symbol</th>
-        <th>Last Price</th>
-        <th>Volume</th>
-        <th>Change</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for coin in coin_data %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Crypto Prices</title>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Crypto Prices</h1>
+    <table>
+      <thead>
         <tr>
-          <td>{{ coin['symbol'] }}</td>
-          <td>{{ coin['last_price'] }}</td>
-          <td>{{ coin['volume'] }}</td>
-          <td>{{ coin['change'] }}</td>
+          <th>Symbol</th>
+          <th>Last Price</th>
+          <th>Volume</th>
+          <th>Change</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% endblock %}
+      </thead>
+      <tbody>
+        {% for coin in coin_data %}
+          <tr>
+            <td>{{ coin.symbol }}</td>
+            <td>{{ coin.last_price }}</td>
+            <td>{{ coin.volume }}</td>
+            <td>{{ coin.change }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

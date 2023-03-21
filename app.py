@@ -1,79 +1,62 @@
-
-from binance import AsyncClient, BinanceSocketManager
-import asyncio
 from flask import Flask, render_template
+import ccxt.async as ccxt
+import asyncio
 
 app = Flask(__name__)
 
-# Define your Binance API keys
-API_KEY = 'OtmdN18Tgx7VjnLyD4Ulc7ooNUaS0ezw38EZtTXvz0Eln4LxePIGCjOC95WG80OG'
-API_SECRET = 'ShmYzH63927bieEp6SgHTDXv3hlEdkiePHMsSpdXpbviKNJbGpPSS6M3YSTACq4u'
+async def scan_arbitrage(exchanges):
+    result = []
 
-# Create a Binance client and socket manager
-client = AsyncClient(API_KEY, API_SECRET)
-bm = BinanceSocketManager(client)
+    # Connect to each exchange asynchronously
+    for exchange in exchanges:
+        await exchange.load_markets()
 
-# Define the websocket endpoint to connect to
-ws_endpoint = '!ticker@arr'
+    # Check for arbitrage opportunities
+    for i in range(len(exchanges)):
+        for j in range(i+1, len(exchanges)):
+            exchange1 = exchanges[i]
+            exchange2 = exchanges[j]
 
-# Define the callback function for handling the websocket data
-async def handle_socket_message(msg):
-    # Send the websocket message to the index.html file using Flask-SocketIO
-    await app.extensions['socketio'].emit('ticker', msg)
+            # Get all symbols with both exchanges
+            symbols = set(exchange1.symbols) & set(exchange2.symbols)
 
-# Define the route to render the HTML template
+            # Check for arbitrage opportunities in each symbol
+            for symbol in symbols:
+                try:
+                    ticker1 = await exchange1.fetch_ticker(symbol)
+                    ticker2 = await exchange2.fetch_ticker(symbol)
+
+                    # Calculate potential profit percentage
+                    bid1 = ticker1['bid']
+                    ask2 = ticker2['ask']
+                    profit_percent = (ask2 - bid1) / bid1 * 100
+
+                    # Add arbitrage opportunity to results if profit percentage is positive
+                    if profit_percent > 0:
+                        result.append({
+                            'symbol': symbol,
+                            'exchange1': exchange1.id,
+                            'exchange2': exchange2.id,
+                            'bid1': bid1,
+                            'ask2': ask2,
+                            'profit_percent': profit_percent
+                        })
+                except ccxt.errors.ExchangeError as e:
+                    print(f"Error fetching ticker for {symbol} on {exchange1.id} and {exchange2.id}: {e}")
+
+    return result
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Create a list of exchange instances
+    exchanges = [ccxt.binance(), ccxt.bitfinex(), ccxt.bittrex(), ccxt.coinbasepro(), ccxt.huobipro(), ccxt.kraken(), ccxt.okex(), ccxt.poloniex(), ccxt.upbit(), ccxt.zb()]
 
-# Define the function to start the websocket connection
-async def start_websocket():
-    # Create a websocket connection to the endpoint
-    ws = bm.multiplex_socket([ws_endpoint])
+    # Scan for arbitrage opportunities
+    loop = asyncio.get_event_loop()
+    result = loop.run_until_complete(scan_arbitrage(exchanges))
 
-    # Register the callback function to handle incoming data
-    ws.register_callback(handle_socket_message)
-
-    # Start the websocket connection
-    await ws.__aenter__()
-
-# Start the websocket connection when the Flask app starts
-@app.before_first_request
-async def start():
-    await start_websocket()
+    # Render the template with the results
+    return render_template('index.html', result=result)
 
 if __name__ == '__main__':
-    # Start the Flask app using Gunicorn
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    from gunicorn.workers.gthread import GThreadWorker
-    from socketio import Server
-
-    socketio = Server(async_mode='threading')
-    app.extensions['socketio'] = socketio
-
-    @app.before_first_request
-    def start_background_thread():
-        async def run():
-            await start_websocket()
-        asyncio.create_task(run())
-
-    @socketio.on('connect')
-    def connect():
-        print('Client connected')
-
-    @socketio.on('disconnect')
-    def disconnect():
-        print('Client disconnected')
-
-    @socketio.on_error()
-    def error_handler(e):
-        print('Error:', e)
-
-    @socketio.on('ticker')
-    def handle_ticker(msg):
-        socketio.emit('ticker', msg)
-
-    app.config['SECRET_KEY'] = 'YOUR_SECRET_KEY'
-    worker = GThreadWorker(app)
-    worker.init_app(app)
-    worker.run()
+    app.run(debug=True)

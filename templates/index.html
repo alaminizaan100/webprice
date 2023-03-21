@@ -22,7 +22,7 @@
     </table>
 
     <script>
-        const socket = new WebSocket('wss://arbitrage.osc-fr1.scalingo.io/stream');
+        const socket = new WebSocket('wss://arbitrage.osc-fr1.scalingo.io/');
         socket.onmessage = function (event) {
             const data = JSON.parse(event.data);
             updateCoinData(data);

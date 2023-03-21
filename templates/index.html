@@ -1,29 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Binance Data</title>
+	<title>Binance Data</title>
+	<style>
+		table {
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		td, th {
+			border: 1px solid #dddddd;
+			text-align: left;
+			padding: 8px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
+
+		h1 {
+			text-align: center;
+		}
+	</style>
 </head>
 <body>
-    <h1>Binance Data</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Coin</th>
-                <th>Price (USD)</th>
-                <th>Volume (24h)</th>
-                <th>Quote Volume (24h)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for coin, data in coins.items() %}
-                <tr>
-                    <td>{{ coin }}</td>
-                    <td>{{ data['price'] }}</td>
-                    <td>{{ data['volume'] }}</td>
-                    <td>{{ data['quote'] }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+	<h1>Binance Data</h1>
+	<p>Number of coins: {{ num_coins }}</p>
+	<table>
+		<tr>
+			<th>Coin Pair</th>
+			<th>Last Price (USD)</th>
+			<th>Volume (24h)</th>
+			<th>Quote Volume (24h)</th>
+		</tr>
+		{% for coin, data in coins.items() %}
+		<tr>
+			<td>{{ coin }}</td>
+			<td>{{ data['price'] }}</td>
+			<td>{{ data['volume'] }}</td>
+			<td>{{ data['quote'] }}</td>
+		</tr>
+		{% endfor %}
+	</table>
 </body>
 </html>

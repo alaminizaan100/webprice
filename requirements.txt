@@ -1,4 +1,4 @@
-binance
+ccxt
 asyncio
 flask
 gunicorn 

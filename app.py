@@ -22,25 +22,26 @@ exchange = ccxt.binance({
         }
     }
 })
+
 symbols = exchange.load_markets()
 
 trades = []
+async def fetch_trades():
+    global trades
+    for symbol in symbols.keys()[:50]:
+        channel = f'trade:{symbol}'
+        await exchange.websocket_subscribe(channel, lambda t: trades.append(t))
 
-def subscribe_to_trades():
+def start_socket():
     loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    async def subscribe(channel):
-        def callback(trade):
-            trades.append(trade)
-        await exchange.websocket_subscribe(channel, callback)
-    tasks = [subscribe(f'trade:{symbol}') for symbol in symbols.keys()[:50]]
-    loop.run_until_complete(asyncio.gather(*tasks, exchange.websocket_watch()))
+    loop.run_until_complete(fetch_trades())
+    loop.run_forever()
 
 @app.route('/')
 def index():
     return render_template('index.html', trades=trades)
 
 if __name__ == '__main__':
-    t = Thread(target=subscribe_to_trades)
-    t.start()
+    socket_thread = Thread(target=start_socket)
+    socket_thread.start()
     app.run(debug=True)

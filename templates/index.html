@@ -1,120 +1,19 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Crypto Trades</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .header {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-    }
-    
-    .header h1 {
-      margin: 0;
-    }
-    
-    .content {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 20px;
-    }
-    
-    .card {
-      background-color: #f4f4f4;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-      margin: 10px;
-      padding: 20px;
-      text-align: center;
-      width: 250px;
-    }
-    
-    .card h2 {
-      font-size: 24px;
-      margin: 10px 0;
-    }
-    
-    .card p {
-      font-size: 18px;
-      margin: 5px 0;
-    }
-    
-    .card.green {
-      background-color: #a0e8af;
-    }
-    
-    .card.red {
-      background-color: #e8a0a0;
-    }
-    
-    .loading {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    
-    .loading p {
-      font-size: 18px;
-      font-style: italic;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>Crypto Trades</h1>
-  </div>
-  
-  <div class="content">
-    <div class="loading">
-      <p>Loading...</p>
-    </div>
-  </div>
-  
-  <script>
-    const eventSource = new EventSource('/stream');
-    const content = document.querySelector('.content');
-    const loading = document.querySelector('.loading');
-    
-    eventSource.onmessage = function(event) {
-      const trades = JSON.parse(event.data);
-      
-      if (Object.keys(trades).length === 0) {
-        return;
-      }
-      
-      loading.style.display = 'none';
-      content.innerHTML = '';
-      
-      for (const symbol in trades) {
-        const trade = trades[symbol];
-        const card = document.createElement('div');
-        
-        card.classList.add('card');
-        
-        if (trade.side === 'buy') {
-          card.classList.add('green');
-        } else if (trade.side === 'sell') {
-          card.classList.add('red');
-        }
-        
-        card.innerHTML = `
-          <h2>${symbol}</h2>
-          <p>${trade.price}</p>
-          <p>${trade.amount}</p>
-        `;
-        
-        content.appendChild(card);
-      }
-    }
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>Binance Top 100 Coin Prices</title>
+  </head>
+  <body>
+    <h1>Binance Top 100 Coin Prices</h1>
+    <ul id="prices"></ul>
+    <script>
+      const prices = document.getElementById('prices');
+      const evtSource = new EventSource('/stream');
+      evtSource.onmessage = event => {
+        const data = JSON.parse(event.data);
+        prices.innerHTML = Object.entries(data).map(([pair, price]) => `<li>${pair}: ${price}</li>`).join('');
+      };
+    </script>
+  </body>
 </html>

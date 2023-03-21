@@ -1,6 +1,7 @@
 import ccxt
 import asyncio
 from flask import Flask, render_template
+from threading import Thread
 
 app = Flask(__name__)
 exchange = ccxt.binance({
@@ -23,25 +24,23 @@ exchange = ccxt.binance({
 })
 symbols = exchange.load_markets()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+trades = []
 
-@app.route('/trades')
-async def trades():
-    trades = []
-
-    # Define a coroutine function to handle the websocket subscription
+def subscribe_to_trades():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     async def subscribe(channel):
         def callback(trade):
             trades.append(trade)
         await exchange.websocket_subscribe(channel, callback)
+    tasks = [subscribe(f'trade:{symbol}') for symbol in symbols.keys()[:50]]
+    loop.run_until_complete(asyncio.gather(*tasks, exchange.websocket_watch()))
 
-    # Use asyncio.gather() to asynchronously subscribe to trade data for each symbol
-    await asyncio.gather(*[subscribe(f'trade:{symbol}') for symbol in symbols.keys()[:50]])
-    await exchange.websocket_watch()
+@app.route('/')
+def index():
     return render_template('index.html', trades=trades)
 
-
 if __name__ == '__main__':
+    t = Thread(target=subscribe_to_trades)
+    t.start()
     app.run(debug=True)

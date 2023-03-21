@@ -1,64 +1,44 @@
-import ccxt
+import ccxt.async_support as ccxt
 import asyncio
 from flask import Flask, render_template, Response
-from threading import Thread
+import json
 
 app = Flask(__name__)
 exchange = ccxt.binance({
-    'apiKey': 'OtmdN18Tgx7VjnLyD4Ulc7ooNUaS0ezw38EZtTXvz0Eln4LxePIGCjOC95WG80OG',
-    'secret': 'ShmYzH63927bieEp6SgHTDXv3hlEdkiePHMsSpdXpbviKNJbGpPSS6M3YSTACq4u',
+    'apiKey': 'YOUR_API_KEY',
+    'secret': 'YOUR_SECRET_KEY',
     'enableRateLimit': True,
-    'options': {
-        'websocket': {
-            'options': {
-                'max_retries': 5,
-                'ping_interval': 10,
-                'ping_timeout': 5,
-                'retry_delay': 2,
-                'enableCompression': True,
-                'autoReconnect': True,
-                'timeout': 20
-            }
-        }
-    }
 })
 
-async def fetch_trades():
+async def get_top_pairs(n):
+    tickers = await exchange.fetch_tickers()
+    top_pairs = sorted(tickers, key=lambda k: tickers[k]['quoteVolume'], reverse=True)[:n]
+    return top_pairs
+
+async def get_pair_price(pair):
+    ticker = await exchange.fetch_ticker(pair)
+    return ticker['last']
+
+async def generate():
+    top_pairs = await get_top_pairs(100)
     while True:
-        trades = {}
-        for symbol in exchange.markets:
-            channel = f'trade:{symbol}'
-            async with exchange.websocket(channel) as ws:
-                async for trade in ws:
-                    trades[symbol] = trade
-        yield trades
+        prices = {}
+        tasks = [asyncio.create_task(get_pair_price(pair)) for pair in top_pairs]
+        for i, task in enumerate(asyncio.as_completed(tasks)):
+            price = await task
+            prices[top_pairs[i]] = price
+        yield f"data: {json.dumps(prices)}\n\n"
 
 @app.route('/')
 def index():
-    coin_data = asyncio.run(get_all_coin_data())
-    return render_template('index.html', coin_data=coin_data)
-
-async def get_all_coin_data():
-    tasks = []
-    for symbol in exchange.markets:
-        tasks.append(asyncio.create_task(get_coin_data(symbol)))
-    return await asyncio.gather(*tasks)
-
-async def get_coin_data(symbol):
-    ticker = await exchange.fetch_ticker(symbol)
-    return {
-        'symbol': symbol,
-        'last_price': ticker['last'],
-        'volume': ticker['quoteVolume'],
-        'change': ticker['percentage']
-    }
+    return render_template('index.html')
 
 @app.route('/stream')
 async def stream():
-    async def generate():
-        async for trades in fetch_trades():
-            yield 'data: {}\n\n'.format(trades)
-    return Response(generate(), mimetype='text/event-stream')
+    async def generate_with_newline():
+        async for prices in generate():
+            yield prices + "\n"
+    return Response(generate_with_newline(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
     app.run(debug=True)

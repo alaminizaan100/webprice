@@ -28,7 +28,7 @@ symbols = exchange.load_markets()
 trades = []
 async def fetch_trades():
     global trades
-    for symbol in symbols.keys()[:50]:
+    for symbol in list(symbols.keys())[:50]:
         channel = f'trade:{symbol}'
         await exchange.websocket_subscribe(channel, lambda t: trades.append(t))
 
@@ -49,7 +49,7 @@ def get_coin_data(symbol):
 @app.route('/')
 def index():
     coin_data = []
-    for symbol in symbols.keys()[:50]:
+    for symbol in list(symbols.keys())[:50]:
         coin_data.append(get_coin_data(symbol))
     return render_template('index.html', coin_data=coin_data)
 

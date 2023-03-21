@@ -6,3 +6,5 @@ aiohttp
 websockets
 flask_socketio
 eventlet
+binance.client
+binance.websockets

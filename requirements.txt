@@ -3,3 +3,4 @@ asyncio
 flask
 gunicorn 
 aiohttp
+websockets

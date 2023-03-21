@@ -30,11 +30,18 @@ def index():
 @app.route('/trades')
 async def trades():
     trades = []
-    for symbol in symbols.keys()[:50]:
-        channel = f'trade:{symbol}'
-        await exchange.websocket_subscribe(channel, lambda t: trades.append(t))
+
+    # Define a coroutine function to handle the websocket subscription
+    async def subscribe(channel):
+        def callback(trade):
+            trades.append(trade)
+        await exchange.websocket_subscribe(channel, callback)
+
+    # Use asyncio.gather() to asynchronously subscribe to trade data for each symbol
+    await asyncio.gather(*[subscribe(f'trade:{symbol}') for symbol in symbols.keys()[:50]])
     await exchange.websocket_watch()
     return render_template('index.html', trades=trades)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

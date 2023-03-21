@@ -1,36 +1,40 @@
-import ccxt.async_support as ccxt
+import ccxt
 import asyncio
-from aiohttp import ClientSession
 from flask import Flask, render_template
 
 app = Flask(__name__)
-app.config['TIMEOUT'] = 180
-
-async def fetch_ticker(exchange, symbol, session):
-    ticker = await exchange.fetch_ticker(symbol)
-    return (exchange.id, symbol, ticker['last'])
-
-async def get_tickers(exchange, symbols, session):
-    tasks = []
-    for symbol in symbols:
-        tasks.append(fetch_ticker(exchange, symbol, session))
-    results = await asyncio.gather(*tasks)
-    return results
-
-async def scan_arbi(exchanges, session):
-    symbols = ['BTC/USDT', 'ETH/USDT', 'LTC/USDT']
-    tasks = []
-    for exchange in exchanges:
-        tasks.append(get_tickers(exchange, symbols, session))
-    results = await asyncio.gather(*tasks)
-    return results
+exchange = ccxt.binance({
+    'apiKey': 'OtmdN18Tgx7VjnLyD4Ulc7ooNUaS0ezw38EZtTXvz0Eln4LxePIGCjOC95WG80OG',
+    'secret': 'ShmYzH63927bieEp6SgHTDXv3hlEdkiePHMsSpdXpbviKNJbGpPSS6M3YSTACq4u',
+    'enableRateLimit': True,
+    'options': {
+        'websocket': {
+            'options': {
+                'max_retries': 5,
+                'ping_interval': 10,
+                'ping_timeout': 5,
+                'retry_delay': 2,
+                'enableCompression': True,
+                'autoReconnect': True,
+                'timeout': 20
+            }
+        }
+    }
+})
+symbols = exchange.load_markets()
 
 @app.route('/')
-async def index():
-    async with ClientSession() as session:
-        exchanges = [ccxt.binance(), ccxt.bitfinex()]
-        results = await scan_arbi(exchanges, session)
-    return render_template('index.html', result=results)
+def index():
+    return render_template('index.html')
+
+@app.route('/trades')
+async def trades():
+    trades = []
+    for symbol in symbols.keys()[:50]:
+        channel = f'trade:{symbol}'
+        await exchange.websocket_subscribe(channel, lambda t: trades.append(t))
+    await exchange.websocket_watch()
+    return render_template('index.html', trades=trades)
 
 if __name__ == '__main__':
     app.run(debug=True)

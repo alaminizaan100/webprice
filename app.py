@@ -1,38 +1,26 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO
-import ccxt
-import eventlet
+from flask import Flask
+import ccxt.async_support as ccxt
 
-# Initialize Flask app and SocketIO
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
 
-# Initialize Binance exchange
-binance = ccxt.binance()
+# Set up the Binance WebSocket connection
+async def binance_ws(symbol):
+    exchange = ccxt.binance()
+    ticker = await exchange.subscribe_ticker(symbol)
+    while True:
+        data = await ticker.recv()
+        # Convert the price to USD
+        price = await exchange.fetch_ticker(symbol)
+        usd_price = price['last'] * await exchange.fetch_ticker('BTC/USDT')['last']
+        # Print the new ticker data in USD
+        print(f'{symbol}: {usd_price}')
 
-# Define WebSocket event handler
-@socketio.on('connect')
-def handle_connect():
-    # Start WebSocket connection to Binance
-    symbol = 'BTC/USDT'  # Set default symbol to BTC/USDT
-    binance.load_markets()
-    binance_symbol = binance.symbol(symbol)
-    binance.websocket_subscribe(binance_symbol, 'ticker', callback)
-
-def callback(ticker):
-    # Send ticker data to the WebSocket client
-    socketio.emit('ticker', {
-        'symbol': ticker['symbol'],
-        'price': ticker['last'],
-    })
-
-# Define Flask route
+# Set up the Flask route and start the WebSocket connection
 @app.route('/')
 def index():
-    return render_template('index.html')
+    symbol = 'BTC/USDT'
+    binance_ws_task = app.loop.create_task(binance_ws(symbol))
+    return 'Binance WebSocket connection started'
 
 if __name__ == '__main__':
-    # Run Flask app with SocketIO
-    eventlet.monkey_patch()
-    socketio.run(app)
+    app.run()

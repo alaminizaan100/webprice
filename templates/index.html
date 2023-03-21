@@ -1,20 +1,51 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Binance Prices</title>
-  </head>
-  <body>
-    <ul id="prices"></ul>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="//cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        var socket = io.connect();
-        socket.on('ticker', function(data) {
-          $('#prices').append('<li>' + data.symbol + ': ' + data.price + '</li>');
-        });
-      });
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Binance Coin Data</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      margin: 2rem auto;
+      max-width: 80rem;
+    }
+    .coin {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      border: 2px solid #333;
+      border-radius: 0.5rem;
+      margin: 1rem;
+      width: 15rem;
+    }
+    .coin span {
+      margin: 0.5rem;
+    }
+    .coin span:first-child {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    {% for symbol, data in latest_data.items() %}
+      <div class="coin">
+        <span>{{ symbol }}</span>
+        <span>{{ data["price"] }}</span>
+        <span>{{ data["info"] }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</body>
 </html>

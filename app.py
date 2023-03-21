@@ -1,44 +1,38 @@
-import ccxt.async_support as ccxt
-import asyncio
-from flask import Flask, render_template, Response
-import json
+from flask import Flask, render_template
+from flask_socketio import SocketIO
+import ccxt
+import eventlet
 
+# Initialize Flask app and SocketIO
 app = Flask(__name__)
-exchange = ccxt.binance({
-    'apiKey': 'YOUR_API_KEY',
-    'secret': 'YOUR_SECRET_KEY',
-    'enableRateLimit': True,
-})
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
 
-async def get_top_pairs(n):
-    tickers = await exchange.fetch_tickers()
-    top_pairs = sorted(tickers, key=lambda k: tickers[k]['quoteVolume'], reverse=True)[:n]
-    return top_pairs
+# Initialize Binance exchange
+binance = ccxt.binance()
 
-async def get_pair_price(pair):
-    ticker = await exchange.fetch_ticker(pair)
-    return ticker['last']
+# Define WebSocket event handler
+@socketio.on('connect')
+def handle_connect():
+    # Start WebSocket connection to Binance
+    symbol = 'BTC/USDT'  # Set default symbol to BTC/USDT
+    binance.load_markets()
+    binance_symbol = binance.symbol(symbol)
+    binance.websocket_subscribe(binance_symbol, 'ticker', callback)
 
-async def generate():
-    top_pairs = await get_top_pairs(100)
-    while True:
-        prices = {}
-        tasks = [asyncio.create_task(get_pair_price(pair)) for pair in top_pairs]
-        for i, task in enumerate(asyncio.as_completed(tasks)):
-            price = await task
-            prices[top_pairs[i]] = price
-        yield f"data: {json.dumps(prices)}\n\n"
+def callback(ticker):
+    # Send ticker data to the WebSocket client
+    socketio.emit('ticker', {
+        'symbol': ticker['symbol'],
+        'price': ticker['last'],
+    })
 
+# Define Flask route
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/stream')
-async def stream():
-    async def generate_with_newline():
-        async for prices in generate():
-            yield prices + "\n"
-    return Response(generate_with_newline(), mimetype='text/event-stream')
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Run Flask app with SocketIO
+    eventlet.monkey_patch()
+    socketio.run(app)

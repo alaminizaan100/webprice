@@ -1,29 +1,25 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Trade Data</title>
-  </head>
-  <body>
-    <h1>Trade Data</h1>
-    <table>
-      <thead>
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Coin Data</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Last Price</th>
+        <th>Volume</th>
+        <th>Change</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for coin in coin_data %}
         <tr>
-          <th>Symbol</th>
-          <th>Price</th>
-          <th>Amount</th>
-          <th>Timestamp</th>
+          <td>{{ coin['symbol'] }}</td>
+          <td>{{ coin['last_price'] }}</td>
+          <td>{{ coin['volume'] }}</td>
+          <td>{{ coin['change'] }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for trade in trades %}
-        <tr>
-          <td>{{ trade['symbol'] }}</td>
-          <td>{{ trade['price'] }}</td>
-          <td>{{ trade['amount'] }}</td>
-          <td>{{ trade['timestamp'] }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </body>
-</html>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

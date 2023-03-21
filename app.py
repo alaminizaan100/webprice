@@ -38,14 +38,11 @@ def start_socket():
     loop.run_until_complete(fetch_trades())
     loop.run_forever()
 
-def get_coin_data(symbol):
-    ticker = exchange.fetch_ticker(symbol)
-    return {
-        'symbol': symbol,
-        'last_price': ticker['last'],
-        'volume': ticker['quoteVolume'],
-        'change': ticker['percentage']
-    }
+async def generate():
+    while True:
+        yield 'data: {}\n\n'.format(trades)
+        trades.clear()
+        await asyncio.sleep(1)
 
 @app.route('/')
 def index():
@@ -56,12 +53,16 @@ def index():
 
 @app.route('/stream')
 def stream():
-    def generate():
-        while True:
-            yield 'data: {}\n\n'.format(trades)
-            trades.clear()
-            await asyncio.sleep(1)
     return app.response_class(generate(), mimetype='text/event-stream')
+
+def get_coin_data(symbol):
+    ticker = exchange.fetch_ticker(symbol)
+    return {
+        'symbol': symbol,
+        'last_price': ticker['last'],
+        'volume': ticker['quoteVolume'],
+        'change': ticker['percentage']
+    }
 
 if __name__ == '__main__':
     socket_thread = Thread(target=start_socket)

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arbitrage Opportunities</title>
+</head>
+<body>
+    <h1>Arbitrage Opportunities</h1>
+    {% if result %}
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Exchange 1</th>
+                <th>Exchange 2</th>
+                <th>Bid Price on Exchange 1</th>
+                <th>Ask Price on Exchange 2</th>
+                <th>Potential Profit Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in result %}
+            <tr>
+                <td>{{ r.symbol }}</td>
+                <td>{{ r.exchange1 }}</td>
+                <td>{{ r.exchange2 }}</td>
+                <td>{{ r.bid1 }}</td>
+                <td>{{ r.ask2 }}</td>
+                <td>{{ r.profit_percent }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No arbitrage opportunities found.</p>
+    {% endif %}
+</body>
+</html>

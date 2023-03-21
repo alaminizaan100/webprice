@@ -1,6 +1,6 @@
 import ccxt
 import asyncio
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 from threading import Thread
 
 app = Flask(__name__)
@@ -23,40 +23,29 @@ exchange = ccxt.binance({
     }
 })
 
-symbols = exchange.load_markets()
-
-trades = {}
-
 async def fetch_trades():
-    global trades
-    for symbol in symbols.keys():
-        channel = f'trade:{symbol}'
-        await exchange.websocket_subscribe(channel, lambda t: trades.update({symbol: t}))
-
-def start_socket():
-    loop = asyncio.new_event_loop()
-    loop.run_until_complete(fetch_trades())
-    loop.run_forever()
-
-async def generate():
     while True:
-        yield 'data: {}\n\n'.format(trades)
-        trades.clear()
-        await asyncio.sleep(1)
+        trades = {}
+        for symbol in exchange.markets:
+            channel = f'trade:{symbol}'
+            async with exchange.websocket(channel) as ws:
+                async for trade in ws:
+                    trades[symbol] = trade
+        yield trades
 
 @app.route('/')
 def index():
-    coin_data = []
-    for symbol in list(symbols.keys()):
-        coin_data.append(get_coin_data(symbol))
+    coin_data = asyncio.run(get_all_coin_data())
     return render_template('index.html', coin_data=coin_data)
 
-@app.route('/stream')
-def stream():
-    return app.response_class(generate(), mimetype='text/event-stream')
+async def get_all_coin_data():
+    tasks = []
+    for symbol in exchange.markets:
+        tasks.append(asyncio.create_task(get_coin_data(symbol)))
+    return await asyncio.gather(*tasks)
 
-def get_coin_data(symbol):
-    ticker = exchange.fetch_ticker(symbol)
+async def get_coin_data(symbol):
+    ticker = await exchange.fetch_ticker(symbol)
     return {
         'symbol': symbol,
         'last_price': ticker['last'],
@@ -64,7 +53,12 @@ def get_coin_data(symbol):
         'change': ticker['percentage']
     }
 
+@app.route('/stream')
+async def stream():
+    async def generate():
+        async for trades in fetch_trades():
+            yield 'data: {}\n\n'.format(trades)
+    return Response(generate(), mimetype='text/event-stream')
+
 if __name__ == '__main__':
-    socket_thread = Thread(target=start_socket)
-    socket_thread.start()
     app.run(debug=True)

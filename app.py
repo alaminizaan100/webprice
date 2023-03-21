@@ -26,7 +26,7 @@ def binance_data():
         order += 1
     
     num_coins = len(coins)
-    return render_template('binance.html', coins=coins, num_coins=num_coins)
+    return render_template('index.html', coins=coins, num_coins=num_coins)
 
 if __name__ == '__main__':
     app.run(debug=True)

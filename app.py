@@ -1,13 +1,11 @@
-from flask import Flask, render_template
-import ccxt.async as ccxt
+import ccxt.async_support as ccxt
 import asyncio
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-async def scan_arbitrage(exchanges):
+async def scan_arbi(exchanges):
     result = []
-
-    # Connect to each exchange asynchronously
     for exchange in exchanges:
         await exchange.load_markets()
 
@@ -26,12 +24,12 @@ async def scan_arbitrage(exchanges):
                     ticker1 = await exchange1.fetch_ticker(symbol)
                     ticker2 = await exchange2.fetch_ticker(symbol)
 
-                    # Calculate potential profit percentage
+                    # Cal profit percentage
                     bid1 = ticker1['bid']
                     ask2 = ticker2['ask']
                     profit_percent = (ask2 - bid1) / bid1 * 100
 
-                    # Add arbitrage opportunity to results if profit percentage is positive
+                    #  percentage is positive
                     if profit_percent > 0:
                         result.append({
                             'symbol': symbol,
@@ -53,9 +51,8 @@ def index():
 
     # Scan for arbitrage opportunities
     loop = asyncio.get_event_loop()
-    result = loop.run_until_complete(scan_arbitrage(exchanges))
+    result = loop.run_until_complete(scan_arbi(exchanges))
 
-    # Render the template with the results
     return render_template('index.html', result=result)
 
 if __name__ == '__main__':

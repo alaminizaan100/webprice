@@ -26,6 +26,8 @@ def binance_data():
     coins = {}
     for item in ticker_response:
         symbol = item['symbol']
+        if symbol not in asset_names:
+            continue
         base_asset = asset_names[symbol]['base']
         quote_asset = asset_names[symbol]['quote']
         price = float(item['price'])
@@ -37,7 +39,11 @@ def binance_data():
     opportunities = []
     for base_asset in coins:
         for quote_asset_1 in coins[base_asset]:
+            if quote_asset_1 not in coins:
+                continue
             for quote_asset_2 in coins[quote_asset_1]:
+                if quote_asset_2 not in coins:
+                    continue
                 if base_asset in coins[quote_asset_2]:
                     rate_1 = coins[base_asset][quote_asset_1]
                     rate_2 = coins[quote_asset_1][quote_asset_2]
@@ -61,3 +67,7 @@ def binance_data():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+    

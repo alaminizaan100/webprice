@@ -37,9 +37,21 @@ def start_socket():
     loop.run_until_complete(fetch_trades())
     loop.run_forever()
 
+def get_coin_data(symbol):
+    ticker = exchange.fetch_ticker(symbol)
+    return {
+        'symbol': symbol,
+        'last_price': ticker['last'],
+        'volume': ticker['quoteVolume'],
+        'change': ticker['percentage']
+    }
+
 @app.route('/')
 def index():
-    return render_template('index.html', trades=trades)
+    coin_data = []
+    for symbol in symbols.keys()[:50]:
+        coin_data.append(get_coin_data(symbol))
+    return render_template('index.html', coin_data=coin_data)
 
 if __name__ == '__main__':
     socket_thread = Thread(target=start_socket)

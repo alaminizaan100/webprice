@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>Binance Top 100 Coin Prices</title>
+    <meta charset="UTF-8">
+    <title>Binance Prices</title>
   </head>
   <body>
-    <h1>Binance Top 100 Coin Prices</h1>
     <ul id="prices"></ul>
-    <script>
-      const prices = document.getElementById('prices');
-      const evtSource = new EventSource('/stream');
-      evtSource.onmessage = event => {
-        const data = JSON.parse(event.data);
-        prices.innerHTML = Object.entries(data).map(([pair, price]) => `<li>${pair}: ${price}</li>`).join('');
-      };
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="//cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        var socket = io.connect();
+        socket.on('ticker', function(data) {
+          $('#prices').append('<li>' + data.symbol + ': ' + data.price + '</li>');
+        });
+      });
     </script>
   </body>
 </html>

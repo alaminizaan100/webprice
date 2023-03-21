@@ -1,5 +1,6 @@
 from flask import Flask
 import ccxt.async_support as ccxt
+import asyncio
 
 app = Flask(__name__)
 
@@ -19,7 +20,9 @@ async def binance_ws(symbol):
 @app.route('/')
 def index():
     symbol = 'BTC/USDT'
-    binance_ws_task = app.loop.create_task(binance_ws(symbol))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    binance_ws_task = loop.create_task(binance_ws(symbol))
     return 'Binance WebSocket connection started'
 
 if __name__ == '__main__':

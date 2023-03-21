@@ -11,18 +11,22 @@ def binance_data():
     # Make the API request
     response = requests.get(url).json()
 
-    # Create a dictionary to hold the data for each coin
-    coins = {}
+    # Create a list to hold the data for each coin
+    coins = []
+    order = 1
     for item in response:
-        coin = item['symbol'][:-4]
-        if coin not in coins:
-            coins[coin] = {
-                'price': item['lastPrice'],
-                'volume': item['volume'],
-                'quote': item['quoteVolume']
-            }
+        coin = {
+            'order': order,
+            'name': item['symbol'][:-4],
+            'price': item['lastPrice'],
+            'volume': item['volume'],
+            'quote': item['quoteVolume']
+        }
+        coins.append(coin)
+        order += 1
+    
     num_coins = len(coins)
-    return render_template('index.html', coins=coins,num_coins=num_coins)
+    return render_template('binance.html', coins=coins, num_coins=num_coins)
 
 if __name__ == '__main__':
     app.run(debug=True)

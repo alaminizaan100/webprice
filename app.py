@@ -49,7 +49,7 @@ async def scan_arbitrage(exchanges):
 @app.route('/')
 def index():
     # Create a list of exchange instances
-    exchanges = [ccxt.binance(), ccxt.bitfinex(), ccxt.bittrex(), ccxt.coinbasepro(), ccxt.huobipro(), ccxt.kraken(), ccxt.okex(), ccxt.poloniex(), ccxt.upbit(), ccxt.zb()]
+    exchanges = [ccxt.binance(), ccxt.bitfinex()]
 
     # Scan for arbitrage opportunities
     loop = asyncio.get_event_loop()

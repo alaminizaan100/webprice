@@ -2,4 +2,4 @@ ccxt
 asyncio
 flask
 gunicorn 
-requests
+aiohttp

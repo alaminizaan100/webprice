@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Potential Arbitrage Opportunities</title>
+    <meta charset="UTF-8">
+    <title>Binance Triangular Arbitrage Opportunities</title>
 </head>
 <body>
-	<h1>Potential Arbitrage Opportunities</h1>
-	<p>Found {{ num_opportunities }} opportunities:</p>
-	<table>
-		<thead>
-			<tr>
-				<th>Base Asset</th>
-				<th>Quote Asset 1</th>
-				<th>Quote Asset 2</th>
-				<th>Rate 1</th>
-				<th>Rate 2</th>
-				<th>Rate 3</th>
-				<th>Potential Profit</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for opportunity in opportunities %}
-			<tr>
-				<td>{{ opportunity.base_asset }}</td>
-				<td>{{ opportunity.quote_asset_1 }}</td>
-				<td>{{ opportunity.quote_asset_2 }}</td>
-				<td>{{ opportunity.rate_1 }}</td>
-				<td>{{ opportunity.rate_2 }}</td>
-				<td>{{ opportunity.rate_3 }}</td>
-				<td>{{ opportunity.potential_profit }}</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <h1>Binance Triangular Arbitrage Opportunities</h1>
+    <p>Number of opportunities found: {{ num_opportunities }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Base Asset</th>
+                <th>Quote Asset 1</th>
+                <th>Quote Asset 2</th>
+                <th>Rate 1</th>
+                <th>Rate 2</th>
+                <th>Rate 3</th>
+                <th>Potential Profit (USDT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for opportunity in opportunities %}
+            <tr>
+                <td>{{ opportunity['base_asset'] }}</td>
+                <td>{{ opportunity['quote_asset_1'] }}</td>
+                <td>{{ opportunity['quote_asset_2'] }}</td>
+                <td>{{ opportunity['rate_1'] }}</td>
+                <td>{{ opportunity['rate_2'] }}</td>
+                <td>{{ opportunity['rate_3'] }}</td>
+                <td>{{ opportunity['potential_profit'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

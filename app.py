@@ -48,8 +48,8 @@ def binance_data():
                     rate_1 = coins[base_asset][quote_asset_1] * 0.999 # Apply 0.1% trading fee
                     rate_2 = coins[quote_asset_1][quote_asset_2] * 0.999 # Apply 0.1% trading fee
                     rate_3 = coins[quote_asset_2][base_asset] * 0.999 # Apply 0.1% trading fee
-                    potential_profit = ((100 / rate_1) * rate_2 * rate_3 - 100) * 100 / 100 # Calculate potential profit with initial investment of 100 USD and convert to percentage
-                    if potential_profit > 0:
+                    potential_profit = (1 - 0.001) * (1 - 0.001) * (1 - 0.001) * (100 / rate_1) * rate_2 * rate_3 # Calculate potential profit as a percentage of initial investment
+                    if potential_profit > 100: # Check if potential profit is greater than initial investment
                         opportunity = {
                             'base_asset': base_asset,
                             'quote_asset_1': quote_asset_1,
@@ -57,25 +57,16 @@ def binance_data():
                             'rate_1': rate_1,
                             'rate_2': rate_2,
                             'rate_3': rate_3,
-                            'potential_profit': round(potential_profit, 4)
+                            'potential_profit': round(potential_profit - 100, 4), # Display potential profit as a percentage of initial investment
+                            'buy_sell_order': f"Buy {base_asset} -> Sell {quote_asset_1} -> Buy {quote_asset_2} -> Sell {base_asset}",
+                            'coin_names': f"{base_asset}/{quote_asset_1}, {quote_asset_1}/{quote_asset_2}, {quote_asset_2}/{base_asset}"
                         }
                         opportunities.append(opportunity)
 
     opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
     num_opportunities = len(opportunities)
 
-    for opportunity in opportunities:
-        base_asset = opportunity['base_asset']
-        quote_asset_1 = opportunity['quote_asset_1']
-        quote_asset_2 = opportunity['quote_asset_2']
-        profit = opportunity['potential_profit']
-        buy_sell = base_asset + "/" + quote_asset_1 + "/" + quote_asset_2
-        sell_buy = quote_asset_2 + "/" + quote_asset_1 + "/" + base_asset
-        opportunity['buy_sell'] = buy_sell
-        opportunity['sell_buy'] = sell_buy
-
     return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

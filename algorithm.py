@@ -1,4 +1,4 @@
-def calculate_arbitrage_opportunities(coins):
+def calculate_arbitrage_opportunities(ticker_data, exchange_info):
     opportunities = []
     for base_asset in coins:
         for quote_asset_1 in coins[base_asset]:

@@ -48,7 +48,9 @@ def binance_data():
                     rate_1 = coins[base_asset][quote_asset_1] * 0.999 # Apply 0.1% trading fee
                     rate_2 = coins[quote_asset_1][quote_asset_2] * 0.999 # Apply 0.1% trading fee
                     rate_3 = coins[quote_asset_2][base_asset] * 0.999 # Apply 0.1% trading fee
-                    potential_profit = 100 * ((1 - 0.001) ** 3) * ((1 / rate_1) * rate_2 * rate_3 - 1) # Calculate potential profit in USD
+                    buy_amount = 100 # Set the initial amount to buy as 100 USD
+                    sell_amount = buy_amount * rate_1 * rate_2 * rate_3 # Calculate the amount received after selling all the coins
+                    potential_profit = sell_amount - buy_amount # Calculate the potential profit in USD
                     if potential_profit > 0: # Check if potential profit is greater than zero
                         opportunity = {
                             'base_asset': base_asset,
@@ -58,7 +60,6 @@ def binance_data():
                             'rate_2': rate_2,
                             'rate_3': rate_3,
                             'potential_profit': round(potential_profit, 4), # Display potential profit in USD
-                            'buy_sell_order': f"Buy {base_asset} -> Sell {quote_asset_1} -> Buy {quote_asset_2} -> Sell {base_asset}",
                             'coin_names': f"{base_asset}/{quote_asset_1}, {quote_asset_1}/{quote_asset_2}, {quote_asset_2}/{base_asset}"
                         }
                         opportunities.append(opportunity)

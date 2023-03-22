@@ -1,37 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Binance Triangular Arbitrage Opportunities</title>
+	<title>Triangular Arbitrage Opportunities</title>
 </head>
 <body>
-	<h1>Binance Triangular Arbitrage Opportunities</h1>
-	<p>Found {{ num_opportunities }} opportunities:</p>
+	<h1>Triangular Arbitrage Opportunities</h1>
+	<p>Found {{ num_opportunities }} opportunities.</p>
 	<table>
 		<thead>
 			<tr>
-				<th>Buy/Sell</th>
-				<th>Sell/Buy</th>
 				<th>Base Asset</th>
-				<th>Quote Asset 1</th>
-				<th>Quote Asset 2</th>
+				<th>Exchange Pair</th>
+				<th>Coin Names</th>
 				<th>Rate 1</th>
 				<th>Rate 2</th>
 				<th>Rate 3</th>
 				<th>Potential Profit (%)</th>
+				<th>Buy/Sell Order</th>
 			</tr>
 		</thead>
 		<tbody>
 			{% for opportunity in opportunities %}
 			<tr>
-				<td>{{ opportunity.buy_sell }}</td>
-				<td>{{ opportunity.sell_buy }}</td>
 				<td>{{ opportunity.base_asset }}</td>
-				<td>{{ opportunity.quote_asset_1 }}</td>
-				<td>{{ opportunity.quote_asset_2 }}</td>
+				<td>{{ opportunity.quote_asset_1 }}/{{ opportunity.quote_asset_2 }}/{{ opportunity.base_asset }}</td>
+				<td>{{ opportunity.coin_names }}</td>
 				<td>{{ opportunity.rate_1 }}</td>
 				<td>{{ opportunity.rate_2 }}</td>
 				<td>{{ opportunity.rate_3 }}</td>
 				<td>{{ opportunity.potential_profit }}</td>
+				<td>{{ opportunity.buy_sell_order }}</td>
 			</tr>
 			{% endfor %}
 		</tbody>

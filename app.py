@@ -49,7 +49,7 @@ def binance_data():
                     rate_2 = coins[quote_asset_1][quote_asset_2] * 0.999 # Apply 0.1% trading fee
                     rate_3 = coins[quote_asset_2][base_asset] * 0.999 # Apply 0.1% trading fee
                     buy_amount = 100 # Set the initial amount to buy as 100 USD
-                    sell_amount = buy_amount * rate_1 * rate_2 * rate_3 # Calculate the amount received after selling all the coins
+                    sell_amount = buy_amount / rate_1 / rate_2 / rate_3 # Calculate the amount received after selling all the coins
                     potential_profit = sell_amount - buy_amount # Calculate the potential profit in USD
                     if potential_profit > 0: # Check if potential profit is greater than zero
                         opportunity = {
@@ -70,4 +70,4 @@ def binance_data():
     return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug

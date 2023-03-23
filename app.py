@@ -16,6 +16,13 @@ def binance_data():
     ticker_response = requests.get(ticker_url).json()
     info_response = requests.get(info_url).json()
 
+    # Fetch USDT price
+    usdt_price = 1.0
+    for item in ticker_response:
+        if item['symbol'] == 'USDTBUSD':
+            usdt_price = float(item['price'])
+            break
+
     # Create a dictionary of asset names
     asset_names = {}
     for asset in info_response['symbols']:
@@ -58,19 +65,12 @@ def binance_data():
                             'rate_1': rate_1,
                             'rate_2': rate_2,
                             'rate_3': rate_3,
-                            'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4)
+                            'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4),
+                            'potential_profit_usdt': round((rate_1 * rate_2 * rate_3 - 1) * usdt_price, 4)
                         }
                         opportunities.append(opportunity)
 
-    # Get USDT rate
-    usdt_response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTBUSD').json()
-    usdt_rate = float(usdt_response['price'])
-
-    # Convert potential profit to USDT
-    for opportunity in opportunities:
-        opportunity['potential_profit_usdt'] = round(opportunity['potential_profit'] * usdt_rate, 4)
-
-    opportunities = sorted(opportunities, key=lambda x: x['potential_profit_usdt'], reverse=True)
+    opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
     num_opportunities = len(opportunities)
 
     return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)

@@ -62,7 +62,15 @@ def binance_data():
                         }
                         opportunities.append(opportunity)
 
-    opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
+    # Get USDT rate
+    usdt_response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTBUSD').json()
+    usdt_rate = float(usdt_response['price'])
+
+    # Convert potential profit to USDT
+    for opportunity in opportunities:
+        opportunity['potential_profit_usdt'] = round(opportunity['potential_profit'] * usdt_rate, 4)
+
+    opportunities = sorted(opportunities, key=lambda x: x['potential_profit_usdt'], reverse=True)
     num_opportunities = len(opportunities)
 
     return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)

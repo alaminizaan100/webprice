@@ -7,8 +7,8 @@ app = Flask(__name__)
 def binance_data():
     # API endpoint for ticker prices
     ticker_url = 'https://api.binance.com/api/v3/ticker/price'
-    # API endpoint for exchange information
-    info_url = 'https://api.binance.com/api/v3/exchangeInfo'
+    # API endpoint for spot exchange information
+    info_url = 'https://api.binance.com/api/v3/exchangeInfo?filter=spot'
     # Trading fee as decimal
     trading_fee = 0.001
 
@@ -23,9 +23,11 @@ def binance_data():
             usdt_price = float(item['price'])
             break
 
-    # Create a dictionary of asset names
+    # Create a dictionary of asset names for spot trading
     asset_names = {}
     for asset in info_response['symbols']:
+        if asset['status'] != 'TRADING':
+            continue
         asset_names[asset['symbol']] = {
             'base': asset['baseAsset'],
             'quote': asset['quoteAsset']
@@ -74,6 +76,7 @@ def binance_data():
 
     num_opportunities = len(opportunities)
 
+   
     return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
 
 if __name__ == '__main__':

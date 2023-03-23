@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from arbitrage import find_arbitrage_opportunities, get_ticker_data, get_exchange_info
-
+from algorithm import calculate_arbitrage_opportunities(ticker_data, exchange_info)
 app = Flask(__name__)
 
 @app.route('/')

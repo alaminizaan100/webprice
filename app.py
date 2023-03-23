@@ -102,7 +102,7 @@ def binance_data():
                 break
 
     # Sort the opportunities by potential profit
-    opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
+    opportunities = sorted(opportunities, key=lambda x: x['potential_profit_usdt'], reverse=True)
     num_opportunities = len(opportunities)
 
     # Render the template with the opportunities

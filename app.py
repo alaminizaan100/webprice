@@ -17,9 +17,9 @@ def binance_data():
     info_response = requests.get(info_url).json()
 
     # Fetch USDT price
-    usdt_symbol = 'USDTBUSD'
+    usdt_price = 1.0
     for item in ticker_response:
-        if item['symbol'] == usdt_symbol:
+        if item['symbol'] == 'USDTBUSD':
             usdt_price = float(item['price'])
             break
 

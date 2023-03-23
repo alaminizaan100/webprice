@@ -1,4 +1,11 @@
 def calculate_arbitrage_opportunities(ticker_data, exchange_info):
+    coins = {}
+    for symbol in exchange_info['symbols']:
+        base_asset = symbol['baseAsset']
+        quote_asset = symbol['quoteAsset']
+        if base_asset not in coins:
+            coins[base_asset] = {}
+        coins[base_asset][quote_asset] = float(ticker_data[f"{base_asset}{quote_asset}"]['price'])
     opportunities = []
     for base_asset in coins:
         for quote_asset_1 in coins[base_asset]:

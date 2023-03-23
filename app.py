@@ -8,7 +8,7 @@ def binance_data():
     # API endpoint for ticker prices
     ticker_url = 'https://api.binance.com/api/v3/ticker/price'
     # API endpoint for spot exchange information
-    info_url = 'https://api.binance.com/api/v3/exchangeInfo?filter=spot'
+    info_url = 'https://api.binance.com/api/v3/exchangeInfo'
     # Trading fee as decimal
     trading_fee = 0.001
 
@@ -25,7 +25,7 @@ def binance_data():
 
     # Create a dictionary of asset names for spot trading
     asset_names = {}
-    for asset in info_response['symbol']:
+    for asset in info_response['symbols']:
         if asset['status'] != 'TRADING':
             continue
         asset_names[asset['symbol']] = {

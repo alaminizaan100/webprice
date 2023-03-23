@@ -73,7 +73,7 @@ def binance_data():
                         opportunities.append(opportunity)
 
     if not opportunities:
-        L# Fetch the 50 nearest opportunities and display
+        # Fetch the 50 nearest opportunities and display
         sorted_coins = sorted(coins.keys())
         for i in range(len(sorted_coins)):
             for j in range(i + 1, len(sorted_coins)):

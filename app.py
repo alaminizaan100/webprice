@@ -59,7 +59,7 @@ def binance_data():
                     rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
                     rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
                     rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                    if rate_1 * rate_2 * rate_3 > -100:
+                    if rate_1 * rate_2 * rate_3 > 1:
                         opportunity = {
                             'base_asset': base_asset,
                             'quote_asset_1': quote_asset_1,

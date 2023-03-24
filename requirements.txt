@@ -4,7 +4,5 @@ flask
 gunicorn 
 aiohttp
 websockets
-flask_socketio
 eventlet
-binance
-binance-python
+

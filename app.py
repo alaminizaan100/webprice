@@ -66,7 +66,7 @@ def binance_data():
 
     # Find triangular arbitrage opportunities
     opportunities = []
-for base_asset in coins:
+    for base_asset in coins:
     for quote_asset_1 in coins[base_asset]:
         if quote_asset_1 not in coins:
             continue

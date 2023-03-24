@@ -104,4 +104,6 @@ for base_asset in coins:
 opportunities.sort(key=lambda x: x['profit'], reverse=True)
 
 # Render the HTML page with some important data
-return render_template('index.html', opportunities=opportunities, trading_fee=trading_fee, coins=coins)
+return render_template('index.html', opportunities=opportunities, trading_fee=trading_fee, coins=coins, num_opportunities=len(opportunities))
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,50 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-	<title>Triangular Arbitrage Opportunities</title>
-</head>
-<body>
-	<h1>Triangular Arbitrage Opportunities</h1>
-
-	{% if num_opportunities == 0 %}
-		<p>No opportunities found.</p>
-	{% else %}
-		<table>
-			<thead>
-				<tr>
-					<th>Base Asset</th>
-					<th>Quote Asset 1</th>
-					<th>Quote Asset 2</th>
-					<th>Rate 1</th>
-					<th>Rate 2</th>
-					<th>Rate 3</th>
-					<th>Potential Profit</th>
-					<th>Potential Profit (USDT)</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for opportunity in opportunities %}
-					<tr>
-						<td>{{ opportunity['base_asset'] }}</td>
-						<td>{{ opportunity['quote_asset_1'] }}</td>
-						<td>{{ opportunity['quote_asset_2'] }}</td>
-						<td>{{ opportunity['rate_1'] }}</td>
-						<td>{{ opportunity['rate_2'] }}</td>
-						<td>{{ opportunity['rate_3'] }}</td>
-						{% if opportunity['potential_profit'] > 0 %}
-							<td style="color: green;">+{{ opportunity['potential_profit'] * 100 }}%</td>
-						{% else %}
-							<td style="color: red;">{{ opportunity['potential_profit'] * 100 }}%</td>
-						{% endif %}
-						{% if opportunity['potential_profit_usdt'] > 0 %}
-							<td style="color: green;">+{{ opportunity['potential_profit_usdt'] }} USDT</td>
-						{% else %}
-							<td style="color: red;">{{ opportunity['potential_profit_usdt'] }} USDT</td>
-						{% endif %}
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	{% endif %}
-</body>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Binance Arbitrage Checker</title>
+  </head>
+  <body>
+    <h1>Binance Arbitrage Checker</h1>
+    <h2>Active Trading Pairs:</h2>
+    <ul>
+    {% for pair in pairs %}
+      <li>{{ pair }}</li>
+    {% endfor %}
+    </ul>
+    <h2>Triangular Arbitrage Opportunities:</h2>
+    {% if triangles %}
+      <ul>
+      {% for triangle in triangles %}
+        <li>{{ triangle[0] }} -> {{ triangle[1] }} -> {{ triangle[2] }}</li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No triangular arbitrage opportunities found.</p>
+    {% endif %}
+  </body>
 </html>

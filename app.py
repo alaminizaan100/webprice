@@ -1,39 +1,53 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify
 import requests
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    pairs = get_trading_pairs()
-    triangles = find_triangular_arbitrage(pairs)
-    return render_template('index.html', pairs=pairs, triangles=triangles)
+# Define function to get coin information from API
+def get_coin_info():
+    url = "https://api.coingecko.com/api/v3/coins/list"
+    response = requests.get(url)
+    coin_list = response.json()
+    return coin_list
 
-def get_trading_pairs():
-    response = requests.get('https://api.binance.com/api/v3/exchangeInfo')
-    pairs = []
-    for symbol in response.json()['symbols']:
-        if symbol['status'] == 'TRADING' and (symbol['baseAsset'] == 'BTC' or symbol['baseAsset'] == 'USDT'):
-            pairs.append(symbol['symbol'])
-    return pairs
+# Define function to check for triangular arbitrage opportunities
+def check_triangular_arbitrage():
+    url = "https://api.coingecko.com/api/v3/exchanges"
+    response = requests.get(url)
+    exchange_list = response.json()
+    for exchange in exchange_list:
+        if "triangular_arbitrage" in exchange["flags"]:
+            return exchange["name"]
+    return None
 
-def find_triangular_arbitrage(pairs):
-    triangles = []
-    for i in range(len(pairs)):
-        for j in range(i + 1, len(pairs)):
-            for k in range(j + 1, len(pairs)):
-                pair1, pair2, pair3 = pairs[i], pairs[j], pairs[k]
-                price1 = get_price(pair1)
-                price2 = get_price(pair2)
-                price3 = get_price(pair3)
-                implied_rate = price1 * price2 / price3
-                if implied_rate > 1.01:
-                    triangles.append((pair1, pair2, pair3, implied_rate))
-    return triangles
+# Define route to display all coin information and check for triangular arbitrage opportunities
+@app.route("/")
+def display_coin_info():
+    coin_list = get_coin_info()
+    arbitrage_exchange = check_triangular_arbitrage()
+    response = []
+    for coin in coin_list:
+        coin_info = {
+            "id": coin["id"],
+            "symbol": coin["symbol"],
+            "name": coin["name"]
+        }
+        if arbitrage_exchange is not None:
+            arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], arbitrage_exchange)
+            if arbitrage_profit is not None:
+                coin_info["arbitrage_profit"] = arbitrage_profit
+        response.append(coin_info)
+    return jsonify(response)
 
-def get_price(symbol):
-    response = requests.get(f'https://api.binance.com/api/v3/ticker/price?symbol={symbol}')
-    return float(response.json()['price'])
+# Define function to get triangular arbitrage profit for a given coin and exchange
+def get_triangular_arbitrage_profit(coin_id, exchange_name):
+    url = f"https://api.coingecko.com/api/v3/exchanges/{exchange_name}/triangular_arbitrage?currency_pairs={coin_id}"
+    response = requests.get(url)
+    data = response.json()
+    if "error" not in data:
+        profit = float(data[0]["rate"]) - 1
+        return profit
+    return None
 
 if __name__ == '__main__':
     app.run(debug=True)

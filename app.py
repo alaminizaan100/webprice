@@ -67,43 +67,43 @@ def binance_data():
     # Find triangular arbitrage opportunities
     opportunities = []
     for base_asset in coins:
-    for quote_asset_1 in coins[base_asset]:
-        if quote_asset_1 not in coins:
-            continue
-        for quote_asset_2 in coins[quote_asset_1]:
-            if quote_asset_2 not in coins:
+        for quote_asset_1 in coins[base_asset]:
+            if quote_asset_1 not in coins:
                 continue
-            if base_asset in coins[quote_asset_2]:
-                rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
-                rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
-                rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                potential_profit = rate_1 * rate_2 * rate_3
+            for quote_asset_2 in coins[quote_asset_1]:
+                if quote_asset_2 not in coins:
+                    continue
+                if base_asset in coins[quote_asset_2]:
+                    rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
+                    rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
+                    rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
+                    potential_profit = rate_1 * rate_2 * rate_3
                 
-                # Print arbitrage calculation data
-                print(f"Buy {base_asset} with {quote_asset_1} at {coins[base_asset][quote_asset_1]}")
-                print(f"Sell {quote_asset_1} for {quote_asset_2} at {coins[quote_asset_1][quote_asset_2]}")
-                print(f"Sell {quote_asset_2} for {base_asset} at {coins[quote_asset_2][base_asset]}")
-                print(f"Potential profit: {potential_profit - 1:.5f}")
-                print("-----")
+                    # Print arbitrage calculation data
+                    print(f"Buy {base_asset} with {quote_asset_1} at {coins[base_asset][quote_asset_1]}")
+                    print(f"Sell {quote_asset_1} for {quote_asset_2} at {coins[quote_asset_1][quote_asset_2]}")
+                    print(f"Sell {quote_asset_2} for {base_asset} at {coins[quote_asset_2][base_asset]}")
+                    print(f"Potential profit: {potential_profit - 1:.5f}")
+                    print("-----")
                 
-                if potential_profit > 1:
-                    opportunities.append({
-                        'buy': base_asset,
-                        'sell': quote_asset_1,
-                        'exchange': quote_asset_2,
-                        'profit': potential_profit - 1,
-                        'rate_1': rate_1,
-                        'rate_2': rate_2,
-                        'rate_3': rate_3,
-                        'price_1': coins[base_asset][quote_asset_1],
-                        'price_2': coins[quote_asset_1][quote_asset_2],
-                        'price_3': coins[quote_asset_2][base_asset]
-                    })
+                    if potential_profit > 1:
+                        opportunities.append({
+                            'buy': base_asset,
+                            'sell': quote_asset_1,
+                            'exchange': quote_asset_2,
+                            'profit': potential_profit - 1,
+                            'rate_1': rate_1,
+                            'rate_2': rate_2,
+                            'rate_3': rate_3,
+                            'price_1': coins[base_asset][quote_asset_1],
+                            'price_2': coins[quote_asset_1][quote_asset_2],
+                            'price_3': coins[quote_asset_2][base_asset]
+                        })
 
-# Sort the opportunities by profit
-opportunities.sort(key=lambda x: x['profit'], reverse=True)
+    # Sort the opportunities by profit
+    opportunities.sort(key=lambda x: x['profit'], reverse=True)
 
-# Render the HTML page with some important data
-return render_template('index.html', opportunities=opportunities, trading_fee=trading_fee, coins=coins, num_opportunities=len(opportunities))
+    # Render the HTML page with some important data
+    return render_template('index.html', opportunities=opportunities, trading_fee=trading_fee, coins=coins, num_opportunities=len(opportunities))
 if __name__ == '__main__':
     app.run(debug=True)

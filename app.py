@@ -81,8 +81,10 @@ def binance_data():
         max_profit = opportunities[0]['potential_profit']
     else:
         max_profit = 0
-    min_profit = opportunities[-1]['potential_profit']
-
+    if opportunities:
+        min_profit = opportunities[-1]['potential_profit']
+    else:
+        min_profit=0.01
     # Calculate the number of nearest opportunities to display
     num_opportunities = 10
     if max_profit <= 0:

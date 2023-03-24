@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Triangular Arbitrage Opportunities</title>
   </head>
   <body>
     <h1>Triangular Arbitrage Opportunities</h1>
-    <p>Number of opportunities found: {{ num_opportunities }}</p>
+    <p>Found {{ num_opportunities }} opportunities</p>
     <table>
       <thead>
         <tr>
@@ -21,16 +21,16 @@
       </thead>
       <tbody>
         {% for opportunity in opportunities %}
-          <tr>
-            <td>{{ opportunity['base_asset'] }}</td>
-            <td>{{ opportunity['quote_asset_1'] }}</td>
-            <td>{{ opportunity['quote_asset_2'] }}</td>
-            <td>{{ opportunity['rate_1'] }}</td>
-            <td>{{ opportunity['rate_2'] }}</td>
-            <td>{{ opportunity['rate_3'] }}</td>
-            <td>{{ opportunity['potential_profit'] }}</td>
-            <td>{{ opportunity['potential_profit_usdt'] }}</td>
-          </tr>
+        <tr>
+          <td>{{ opportunity.base_asset }}</td>
+          <td>{{ opportunity.quote_asset_1 }}</td>
+          <td>{{ opportunity.quote_asset_2 }}</td>
+          <td>{{ opportunity.rate_1 }}</td>
+          <td>{{ opportunity.rate_2 }}</td>
+          <td>{{ opportunity.rate_3 }}</td>
+          <td>{% if opportunity.potential_profit > 0 %}+{% endif %}{{ opportunity.potential_profit }}%</td>
+          <td>{% if opportunity.potential_profit_usdt > 0 %}+{% endif %}${{ opportunity.potential_profit_usdt }}</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>

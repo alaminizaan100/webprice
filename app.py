@@ -13,8 +13,12 @@ def binance_data():
     trading_fee = 0.001
 
     # Make the API requests
+    print('Fetching ticker data...')
     ticker_response = requests.get(ticker_url).json()
+    print(f'Ticker data retrieved for {len(ticker_response)} assets.')
+    print('Fetching spot exchange information...')
     info_response = requests.get(info_url).json()
+    print(f'Exchange information retrieved for {len(info_response["symbols"])} assets.')
 
     # Fetch USDT price
     usdt_price = 1.0
@@ -22,6 +26,7 @@ def binance_data():
         if item['symbol'] == 'USDTBUSD':
             usdt_price = float(item['price'])
             break
+    print(f'USDT price retrieved: {usdt_price}')
 
     # Create a dictionary of asset names for spot trading
     asset_names = {}
@@ -32,6 +37,7 @@ def binance_data():
             'base': asset['baseAsset'],
             'quote': asset['quoteAsset']
         }
+    print(f'{len(asset_names)} assets available for trading.')
 
     # Create a dictionary to hold the data for each coin
     coins = {}
@@ -45,8 +51,9 @@ def binance_data():
         if base_asset not in coins:
             coins[base_asset] = {}
         coins[base_asset][quote_asset] = price
+    print(f'{len(coins)} base assets and {sum(len(v) for v in coins.values())} quote assets available for trading.')
 
-    # Find triangular arbitrage opportunities
+        # Find triangular arbitrage opportunities
     opportunities = []
     for base_asset in coins:
         for quote_asset_1 in coins[base_asset]:
@@ -84,8 +91,17 @@ def binance_data():
 
     num_opportunities = len(opportunities)
 
-    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
+    # Print the opportunities and their profitability
+    print(f"Found {num_opportunities} triangular arbitrage opportunities:\n")
+    for opportunity in opportunities:
+        print(f"{opportunity['base_asset']} -> {opportunity['quote_asset_1']} -> {opportunity['quote_asset_2']} -> {opportunity['base_asset']}:")
+        print(f"Rate 1: {opportunity['rate_1']:.8f}")
+        print(f"Rate 2: {opportunity['rate_2']:.8f}")
+        print(f"Rate 3: {opportunity['rate_3']:.8f}")
+        print(f"Potential Profit: {opportunity['potential_profit_usdt']:.8f} USDT")
+        print(f"Color: {opportunity['color']}\n")
 
+    # Return the opportunities to the web page
+    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
 if __name__ == '__main__':
     app.run(debug=True)
-

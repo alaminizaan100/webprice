@@ -12,13 +12,12 @@ def get_coin_info():
 
 # Define function to check for triangular arbitrage opportunities
 def check_triangular_arbitrage():
-    url = "https://api.coingecko.com/api/v3/exchanges"
-    response = requests.get(url)
-    exchange_list = response.json()
-    for exchange in exchange_list:
-        if "triangular_arbitrage" in exchange["flags"]:
-            return exchange["name"]
-    return None
+    arbitrage_exchange = []
+    for exchange in EXCHANGES:
+        if "triangular_arbitrage" in exchange.get("flags", []):
+            arbitrage_exchange.append(exchange["name"])
+    return arbitrage_exchange
+
 
 # Define route to display all coin information and check for triangular arbitrage opportunities
 @app.route("/")

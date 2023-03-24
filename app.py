@@ -19,6 +19,8 @@ def get_coin_info():
     url = "https://api.coingecko.com/api/v3/coins/list"
     while url:
         response = requests.get(url)
+        if not response.ok:
+            raise Exception("Failed to get coin list from Coingecko API.")
         coin_list = response.json()
         for coin in coin_list:
             yield coin
@@ -44,9 +46,12 @@ def display_coin_info():
             "name": coin["name"]
         }
         for exchange in arbitrage_exchange:
-            arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], exchange)
-            if arbitrage_profit is not None:
-                coin_info[f"{exchange}_arbitrage_profit"] = arbitrage_profit
+            try:
+                arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], exchange)
+                if arbitrage_profit is not None:
+                    coin_info[f"{exchange}_arbitrage_profit"] = arbitrage_profit
+            except Exception as e:
+                print(f"Error getting triangular arbitrage profit for {coin['id']} on {exchange}: {str(e)}")
         coin_info_list.append(coin_info)
     return render_template("index.html", coin_info_list=coin_info_list)
 
@@ -54,12 +59,13 @@ def display_coin_info():
 def get_triangular_arbitrage_profit(coin_id, exchange_name):
     url = f"https://api.coingecko.com/api/v3/exchanges/{exchange_name}/triangular_arbitrage?currency_pairs={coin_id}"
     response = requests.get(url)
+    if not response.ok:
+        raise Exception(f"Failed to get triangular arbitrage data from Coingecko API for {coin_id} on {exchange_name}.")
     data = response.json()
-    if data and "error" not in data:
-        profit = float(data[0]["rate"]) - 1
-        return profit
-    return None
+    if not data or "error" in data:
+        raise Exception(f"No triangular arbitrage data available for {coin_id} on {exchange_name}.")
+    profit = float(data[0]["rate"]) - 1
+    return profit
 
 if __name__ == '__main__':
     app.run(debug=True)
-

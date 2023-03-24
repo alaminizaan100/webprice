@@ -77,7 +77,10 @@ def binance_data():
     opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
 
     # Find the highest and lowest potential profits
-    max_profit = opportunities[0]['potential_profit']
+    if opportunities:
+        max_profit = opportunities[0]['potential_profit']
+    else:
+        max_profit = 0
     min_profit = opportunities[-1]['potential_profit']
 
     # Calculate the number of nearest opportunities to display

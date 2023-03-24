@@ -3,7 +3,16 @@ import requests
 
 app = Flask(__name__)
 
-EXCHANGES = []  # Add missing variable
+EXCHANGES = [
+    {
+        "name": "binance",
+        "flags": ["triangular_arbitrage"]
+    },
+    {
+        "name": "kucoin",
+        "flags": ["triangular_arbitrage"]
+    }
+]
 
 # Define function to get coin information from API
 def get_coin_info():
@@ -13,9 +22,9 @@ def get_coin_info():
     return coin_list
 
 # Define function to check for triangular arbitrage opportunities
-def check_triangular_arbitrage():
+def check_triangular_arbitrage(exchange_list):
     arbitrage_exchange = []
-    for exchange in EXCHANGES:
+    for exchange in exchange_list:
         if "triangular_arbitrage" in exchange.get("flags", []):
             arbitrage_exchange.append(exchange["name"])
     return arbitrage_exchange
@@ -24,7 +33,7 @@ def check_triangular_arbitrage():
 @app.route("/")
 def display_coin_info():
     coin_list = get_coin_info()
-    arbitrage_exchange = check_triangular_arbitrage()
+    arbitrage_exchange = check_triangular_arbitrage(EXCHANGES)
     coin_info_list = []
     for coin in coin_list:
         coin_info = {
@@ -32,10 +41,10 @@ def display_coin_info():
             "symbol": coin["symbol"],
             "name": coin["name"]
         }
-        if arbitrage_exchange:  # Use truthy check
-            arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], arbitrage_exchange[0])
+        for exchange in arbitrage_exchange:
+            arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], exchange)
             if arbitrage_profit is not None:
-                coin_info["arbitrage_profit"] = arbitrage_profit
+                coin_info[f"{exchange}_arbitrage_profit"] = arbitrage_profit
         coin_info_list.append(coin_info)
     return render_template("index.html", coin_info_list=coin_info_list)
 

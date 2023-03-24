@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Binance Trading Pairs</title>
+    <title>Coin Info</title>
 </head>
 <body>
-    <h1>Binance Trading Pairs</h1>
+    <h1>Coin Info</h1>
     <table>
         <tr>
-            <th>Trading Pair</th>
-            <th>BTC Price</th>
-            <th>USDT Price</th>
+            <th>ID</th>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Arbitrage Profit</th>
         </tr>
-        {% for pair in pairs %}
-            {% set in_triangles = pair in triangles %}
-            <tr {% if in_triangles %}style="background-color: green;"{% endif %}>
-                <td>{{ pair }}</td>
-                <td>{{ get_price(pair, 'BTC') }}</td>
-                <td>{{ get_price(pair, 'USDT') }}</td>
-            </tr>
+        {% for coin in coin_info_list %}
+        <tr>
+            <td>{{ coin.id }}</td>
+            <td>{{ coin.symbol }}</td>
+            <td>{{ coin.name }}</td>
+            {% if 'arbitrage_profit' in coin %}
+            <td>{{ coin.arbitrage_profit }}</td>
+            {% else %}
+            <td>N/A</td>
+            {% endif %}
+        </tr>
         {% endfor %}
     </table>
 </body>

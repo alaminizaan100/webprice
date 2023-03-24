@@ -17,9 +17,12 @@ EXCHANGES = [
 # Define function to get coin information from API
 def get_coin_info():
     url = "https://api.coingecko.com/api/v3/coins/list"
-    response = requests.get(url)
-    coin_list = response.json()
-    return coin_list
+    while url:
+        response = requests.get(url)
+        coin_list = response.json()
+        for coin in coin_list:
+            yield coin
+        url = response.links.get("next", {}).get("url")
 
 # Define function to check for triangular arbitrage opportunities
 def check_triangular_arbitrage(exchange_list):
@@ -32,10 +35,9 @@ def check_triangular_arbitrage(exchange_list):
 # Define route to display all coin information and check for triangular arbitrage opportunities
 @app.route("/")
 def display_coin_info():
-    coin_list = get_coin_info()
     arbitrage_exchange = check_triangular_arbitrage(EXCHANGES)
     coin_info_list = []
-    for coin in coin_list:
+    for coin in get_coin_info():
         coin_info = {
             "id": coin["id"],
             "symbol": coin["symbol"],
@@ -53,7 +55,7 @@ def get_triangular_arbitrage_profit(coin_id, exchange_name):
     url = f"https://api.coingecko.com/api/v3/exchanges/{exchange_name}/triangular_arbitrage?currency_pairs={coin_id}"
     response = requests.get(url)
     data = response.json()
-    if "error" not in data:
+    if data and "error" not in data:
         profit = float(data[0]["rate"]) - 1
         return profit
     return None

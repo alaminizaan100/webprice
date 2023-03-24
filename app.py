@@ -16,9 +16,10 @@ def check_triangular_arbitrage():
     response = requests.get(url)
     exchange_list = response.json()
     for exchange in exchange_list:
-        if "triangular_arbitrage" in exchange["flags"]:
+        if isinstance(exchange, dict) and "flags" in exchange and "triangular_arbitrage" in exchange["flags"]:
             return exchange["name"]
     return None
+
 
 # Define route to display all coin information and check for triangular arbitrage opportunities
 @app.route("/")

@@ -1,18 +1,30 @@
 from flask import Flask, render_template
 import requests
+import math
 
 app = Flask(__name__)
 
 @app.route('/')
 def binance_data():
-    ticker_response = requests.get('https://api.binance.com/api/v3/ticker/price').json()
-    info_response = requests.get('https://api.binance.com/api/v3/exchangeInfo').json()
+    # API endpoint for ticker prices
+    ticker_url = 'https://api.binance.com/api/v3/ticker/price'
+    # API endpoint for spot exchange information
+    info_url = 'https://api.binance.com/api/v3/exchangeInfo'
+    # Trading fee as decimal
     trading_fee = 0.001
+
+    # Make the API requests
+    ticker_response = requests.get(ticker_url).json()
+    info_response = requests.get(info_url).json()
+
+    # Fetch USDT price
     usdt_price = 1.0
     for item in ticker_response:
         if item['symbol'] == 'USDTBUSD':
             usdt_price = float(item['price'])
             break
+
+    # Create a dictionary of asset names for spot trading
     asset_names = {}
     for asset in info_response['symbols']:
         if asset['status'] != 'TRADING':
@@ -21,6 +33,8 @@ def binance_data():
             'base': asset['baseAsset'],
             'quote': asset['quoteAsset']
         }
+
+    # Create a dictionary to hold the data for each coin
     coins = {}
     for item in ticker_response:
         symbol = item['symbol']
@@ -32,6 +46,8 @@ def binance_data():
         if base_asset not in coins:
             coins[base_asset] = {}
         coins[base_asset][quote_asset] = price
+
+    # Find triangular arbitrage opportunities
     opportunities = []
     for base_asset in coins:
         for quote_asset_1 in coins[base_asset]:
@@ -44,33 +60,43 @@ def binance_data():
                     rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
                     rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
                     rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                    if rate_1 * rate_2 * rate_3 > 1:
-                        opportunity = {
-                            'base_asset': base_asset,
-                            'quote_asset_1': quote_asset_1,
-                            'quote_asset_2': quote_asset_2,
-                            'rate_1': rate_1,
-                            'rate_2': rate_2,
-                            'rate_3': rate_3,
-                            'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4),
-                            'potential_profit_usdt': round((rate_1 * rate_2 * rate_3 - 1) * usdt_price, 4)
-                        }
-                        opportunities.append(opportunity)
+                    potential_profit = rate_1 * rate_2 * rate_3 - 1
+                    opportunity = {
+                        'base_asset': base_asset,
+                        'quote_asset_1': quote_asset_1,
+                        'quote_asset_2': quote_asset_2,
+                        'rate_1': rate_1,
+                        'rate_2': rate_2,
+                        'rate_3': rate_3,
+                        'potential_profit': round(potential_profit, 4),
+                        'potential_profit_usdt': round(potential_profit * usdt_price, 4)
+                    }
+                    opportunities.append(opportunity)
 
-    # filter out opportunities with potential profit less than or equal to 0
-    opportunities = [o for o in opportunities if o['potential_profit'] > 0]
-    
-    # sort the remaining opportunities by potential profit in descending order
+    # Sort the opportunities by potential profit
     opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
-    
-    # if there are no opportunities left, return a message
-    if len(opportunities) == 0:
-        return "No profitable opportunities found."
-    
-    # get the first opportunity as the nearest one
-    nearest_opportunity = opportunities[0]
-    
-    return render_template('index.html', opportunities=opportunities, num_opportunities=len(opportunities), nearest_opportunity=nearest_opportunity)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Find the highest and lowest potential profits
+    max_profit = opportunities[0]['potential_profit']
+    min_profit = opportunities[-1]['potential_profit']
+
+    # Calculate the number of nearest opportunities to display
+    num_opportunities = 10
+    if max_profit <= 0:
+        num_opportunities = min(num_opportunities, len(opportunities))
+
+    # Create a list of opportunities to display
+    display_opportunities = []
+for i in range(num_opportunities):
+    opportunity = opportunities[i]
+    display_opportunity = {
+        'base_asset': opportunity['base_asset'],
+        'quote_asset_1': opportunity['quote_asset_1'],
+        'quote_asset_2': opportunity['quote_asset_2'],
+        'potential_profit': opportunity['potential_profit'],
+        'potential_profit_usdt': opportunity['potential_profit_usdt']
+    }
+    display_opportunities.append(display_opportunity)
+
+# Render the HTML template with the data
+return render_template('index.html', opportunities=display_opportunities, usdt_price=usdt_price)

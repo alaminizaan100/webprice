@@ -3,6 +3,8 @@ import requests
 
 app = Flask(__name__)
 
+EXCHANGES = []  # Add missing variable
+
 # Define function to get coin information from API
 def get_coin_info():
     url = "https://api.coingecko.com/api/v3/coins/list"
@@ -18,7 +20,6 @@ def check_triangular_arbitrage():
             arbitrage_exchange.append(exchange["name"])
     return arbitrage_exchange
 
-
 # Define route to display all coin information and check for triangular arbitrage opportunities
 @app.route("/")
 def display_coin_info():
@@ -31,8 +32,8 @@ def display_coin_info():
             "symbol": coin["symbol"],
             "name": coin["name"]
         }
-        if arbitrage_exchange is not None:
-            arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], arbitrage_exchange)
+        if arbitrage_exchange:  # Use truthy check
+            arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], arbitrage_exchange[0])
             if arbitrage_profit is not None:
                 coin_info["arbitrage_profit"] = arbitrage_profit
         coin_info_list.append(coin_info)

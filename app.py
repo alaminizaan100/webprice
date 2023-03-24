@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, render_template
 import requests
 
 app = Flask(__name__)
@@ -16,17 +16,16 @@ def check_triangular_arbitrage():
     response = requests.get(url)
     exchange_list = response.json()
     for exchange in exchange_list:
-        if isinstance(exchange, dict) and "flags" in exchange and "triangular_arbitrage" in exchange["flags"]:
+        if "triangular_arbitrage" in exchange["flags"]:
             return exchange["name"]
     return None
-
 
 # Define route to display all coin information and check for triangular arbitrage opportunities
 @app.route("/")
 def display_coin_info():
     coin_list = get_coin_info()
     arbitrage_exchange = check_triangular_arbitrage()
-    response = []
+    coin_info_list = []
     for coin in coin_list:
         coin_info = {
             "id": coin["id"],
@@ -37,8 +36,8 @@ def display_coin_info():
             arbitrage_profit = get_triangular_arbitrage_profit(coin["id"], arbitrage_exchange)
             if arbitrage_profit is not None:
                 coin_info["arbitrage_profit"] = arbitrage_profit
-        response.append(coin_info)
-    return jsonify(response)
+        coin_info_list.append(coin_info)
+    return render_template("index.html", coin_info_list=coin_info_list)
 
 # Define function to get triangular arbitrage profit for a given coin and exchange
 def get_triangular_arbitrage_profit(coin_id, exchange_name):

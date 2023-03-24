@@ -53,55 +53,55 @@ def binance_data():
         coins[base_asset][quote_asset] = price
     print(f'{len(coins)} base assets and {sum(len(v) for v in coins.values())} quote assets available for trading.')
 
-        # Find triangular arbitrage opportunities
-    opportunities = []
+    # Convert all assets to USDT
     for base_asset in coins:
-        for quote_asset_1 in coins[base_asset]:
-            if quote_asset_1 not in coins:
+        if base_asset != 'USDT':
+            if 'USDT' in coins[base_asset]:
+                rate = coins[base_asset]['USDT']
+                coins[base_asset]['USDT'] = 1 / rate
+            else:
+                for quote_asset in coins[base_asset]:
+                    rate = coins[base_asset][quote_asset] * coins[quote_asset]['USDT']
+                    coins[base_asset][quote_asset] = 1 / rate
+
+    # Find triangular arbitrage opportunities
+    opportunities = []
+for base_asset in coins:
+    for quote_asset_1 in coins[base_asset]:
+        if quote_asset_1 not in coins:
+            continue
+        for quote_asset_2 in coins[quote_asset_1]:
+            if quote_asset_2 not in coins:
                 continue
-            for quote_asset_2 in coins[quote_asset_1]:
-                if quote_asset_2 not in coins:
-                    continue
-                if base_asset in coins[quote_asset_2]:
-                    rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
-                    rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
-                    rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                    potential_profit = rate_1 * rate_2 * rate_3 - 1
-                    opportunity = {
-                        'base_asset': base_asset,
-                        'quote_asset_1': quote_asset_1,
-                        'quote_asset_2': quote_asset_2,
+            if base_asset in coins[quote_asset_2]:
+                rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
+                rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
+                rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
+                potential_profit = rate_1 * rate_2 * rate_3
+                
+                # Print arbitrage calculation data
+                print(f"Buy {base_asset} with {quote_asset_1} at {coins[base_asset][quote_asset_1]}")
+                print(f"Sell {quote_asset_1} for {quote_asset_2} at {coins[quote_asset_1][quote_asset_2]}")
+                print(f"Sell {quote_asset_2} for {base_asset} at {coins[quote_asset_2][base_asset]}")
+                print(f"Potential profit: {potential_profit - 1:.5f}")
+                print("-----")
+                
+                if potential_profit > 1:
+                    opportunities.append({
+                        'buy': base_asset,
+                        'sell': quote_asset_1,
+                        'exchange': quote_asset_2,
+                        'profit': potential_profit - 1,
                         'rate_1': rate_1,
                         'rate_2': rate_2,
                         'rate_3': rate_3,
-                        'potential_profit': round(potential_profit, 4),
-                        'potential_profit_usdt': round(potential_profit * usdt_price, 4)
-                    }
-                    opportunities.append(opportunity)
+                        'price_1': coins[base_asset][quote_asset_1],
+                        'price_2': coins[quote_asset_1][quote_asset_2],
+                        'price_3': coins[quote_asset_2][base_asset]
+                    })
 
-    # Sort opportunities by potential profit
-    opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
+# Sort the opportunities by profit
+opportunities.sort(key=lambda x: x['profit'], reverse=True)
 
-    # Add color codes based on profitability
-    for opportunity in opportunities:
-        if opportunity['potential_profit'] > 0:
-            opportunity['color'] = 'green'
-        else:
-            opportunity['color'] = 'red'
-
-    num_opportunities = len(opportunities)
-
-    # Print the opportunities and their profitability
-    print(f"Found {num_opportunities} triangular arbitrage opportunities:\n")
-    for opportunity in opportunities:
-        print(f"{opportunity['base_asset']} -> {opportunity['quote_asset_1']} -> {opportunity['quote_asset_2']} -> {opportunity['base_asset']}:")
-        print(f"Rate 1: {opportunity['rate_1']:.8f}")
-        print(f"Rate 2: {opportunity['rate_2']:.8f}")
-        print(f"Rate 3: {opportunity['rate_3']:.8f}")
-        print(f"Potential Profit: {opportunity['potential_profit_usdt']:.8f} USDT")
-        print(f"Color: {opportunity['color']}\n")
-
-    # Return the opportunities to the web page
-    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
-if __name__ == '__main__':
-    app.run(debug=True)
+# Render the HTML page with some important data
+return render_template('index.html', opportunities=opportunities, trading_fee=trading_fee, coins=coins)

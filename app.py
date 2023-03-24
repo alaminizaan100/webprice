@@ -1,5 +1,4 @@
-
-Afrom flask import Flask, render_template
+from flask import Flask, render_template
 import requests
 import math
 
@@ -101,3 +100,8 @@ def binance_data():
 
     # Render the HTML template with the data
     return render_template('index.html', opportunities=display_opportunities, usdt_price=usdt_price)
+if name == 'main':
+app.run(debug=True)
+
+
+

@@ -100,8 +100,11 @@ def binance_data():
 
     # Render the HTML template with the data
     return render_template('index.html', opportunities=display_opportunities, usdt_price=usdt_price)
-if name == 'main':
+
+if __name__ == '__main__':
     app.run(debug=True)
+
+
 
 
 

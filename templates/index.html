@@ -1,30 +1,39 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Triangular Arbitrage Opportunities</title>
+    <meta charset="UTF-8">
+    <title>Binance Triangular Arbitrage Opportunities</title>
   </head>
   <body>
-    <h1>Triangular Arbitrage Opportunities</h1>
-    <p>Current USDT price: {{ usdt_price }}</p>
+    <h1>Binance Triangular Arbitrage Opportunities</h1>
+    <p>Found {{ num_opportunities }} opportunities:</p>
     <table>
-      <tr>
-        <th>Base Asset</th>
-        <th>Quote Asset 1</th>
-        <th>Quote Asset 2</th>
-        <th>Potential Profit (in %)</th>
-        <th>Potential Profit (in USDT)</th>
-        <th>Profit/Loss</th>
-      </tr>
-      {% for opportunity in opportunities %}
+      <thead>
         <tr>
-          <td>{{ opportunity['base_asset'] }}</td>
-          <td>{{ opportunity['quote_asset_1'] }}</td>
-          <td>{{ opportunity['quote_asset_2'] }}</td>
-          <td>{{ opportunity['potential_profit'] }}</td>
-          <td>{{ opportunity['potential_profit_usdt'] }}</td>
-          <td>{{ opportunity['profit_or_loss'] }}</td>
+          <th>Base Asset</th>
+          <th>Quote Asset 1</th>
+          <th>Quote Asset 2</th>
+          <th>Rate 1</th>
+          <th>Rate 2</th>
+          <th>Rate 3</th>
+          <th>Potential Profit</th>
+          <th>Potential Profit (USDT)</th>
         </tr>
-      {% endfor %}
+      </thead>
+      <tbody>
+        {% for opportunity in opportunities %}
+        <tr style="color:{{ opportunity.color }}">
+          <td>{{ opportunity.base_asset }}</td>
+          <td>{{ opportunity.quote_asset_1 }}</td>
+          <td>{{ opportunity.quote_asset_2 }}</td>
+          <td>{{ opportunity.rate_1 }}</td>
+          <td>{{ opportunity.rate_2 }}</td>
+          <td>{{ opportunity.rate_3 }}</td>
+          <td>{{ opportunity.potential_profit }}</td>
+          <td>{{ opportunity.potential_profit_usdt }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </body>
 </html>

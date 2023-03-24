@@ -1,26 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Binance Arbitrage Checker</title>
-  </head>
-  <body>
-    <h1>Binance Arbitrage Checker</h1>
-    <h2>Active Trading Pairs:</h2>
-    <ul>
-    {% for pair in pairs %}
-      <li>{{ pair }}</li>
-    {% endfor %}
-    </ul>
-    <h2>Triangular Arbitrage Opportunities:</h2>
-    {% if triangles %}
-      <ul>
-      {% for triangle in triangles %}
-        <li>{{ triangle[0] }} -> {{ triangle[1] }} -> {{ triangle[2] }}</li>
-      {% endfor %}
-      </ul>
-    {% else %}
-      <p>No triangular arbitrage opportunities found.</p>
-    {% endif %}
-  </body>
+<head>
+    <title>Binance Trading Pairs</title>
+</head>
+<body>
+    <h1>Binance Trading Pairs</h1>
+    <table>
+        <tr>
+            <th>Trading Pair</th>
+            <th>BTC Price</th>
+            <th>USDT Price</th>
+        </tr>
+        {% for pair in pairs %}
+            {% set in_triangles = pair in triangles %}
+            <tr {% if in_triangles %}style="background-color: green;"{% endif %}>
+                <td>{{ pair }}</td>
+                <td>{{ get_price(pair, 'BTC') }}</td>
+                <td>{{ get_price(pair, 'USDT') }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
 </html>

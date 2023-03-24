@@ -89,6 +89,29 @@ def binance_data():
     num_opportunities = 10
     if max_profit <= 0:
         num_opportunities = min(num_opportunities, len(opportunities))
+    
+# Create a list of opportunities to display
+display_opportunities = []
+for opportunity in opportunities:
+    if opportunity['potential_profit'] > 0:
+        display_opportunity = {
+            'base_asset': opportunity['base_asset'],
+            'quote_asset_1': opportunity['quote_asset_1'],
+            'quote_asset_2': opportunity['quote_asset_2'],
+            'potential_profit': opportunity['potential_profit'],
+            'potential_profit_usdt': opportunity['potential_profit_usdt'],
+            'profit_or_loss': 'Profit'
+        }
+    else:
+        display_opportunity = {
+            'base_asset': opportunity['base_asset'],
+            'quote_asset_1': opportunity['quote_asset_1'],
+            'quote_asset_2': opportunity['quote_asset_2'],
+            'potential_profit': opportunity['potential_profit'],
+            'potential_profit_usdt': opportunity['potential_profit_usdt'],
+            'profit_or_loss': 'Loss or No Profit'
+        }
+    display_opportunities.append(display_opportunity)
 
     # Create a list of opportunities to display
     display_opportunities = []

@@ -7,26 +7,24 @@
     <h1>Triangular Arbitrage Opportunities</h1>
     <p>Current USDT price: {{ usdt_price }}</p>
     <table>
-      <thead>
+      <tr>
+        <th>Base Asset</th>
+        <th>Quote Asset 1</th>
+        <th>Quote Asset 2</th>
+        <th>Potential Profit (in %)</th>
+        <th>Potential Profit (in USDT)</th>
+        <th>Profit/Loss</th>
+      </tr>
+      {% for opportunity in opportunities %}
         <tr>
-          <th>Base Asset</th>
-          <th>Quote Asset 1</th>
-          <th>Quote Asset 2</th>
-          <th>Potential Profit</th>
-          <th>Potential Profit (USDT)</th>
+          <td>{{ opportunity['base_asset'] }}</td>
+          <td>{{ opportunity['quote_asset_1'] }}</td>
+          <td>{{ opportunity['quote_asset_2'] }}</td>
+          <td>{{ opportunity['potential_profit'] }}</td>
+          <td>{{ opportunity['potential_profit_usdt'] }}</td>
+          <td>{{ opportunity['profit_or_loss'] }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for opportunity in opportunities %}
-        <tr>
-          <td>{{ opportunity.base_asset }}</td>
-          <td>{{ opportunity.quote_asset_1 }}</td>
-          <td>{{ opportunity.quote_asset_2 }}</td>
-          <td>{{ opportunity.potential_profit }}</td>
-          <td>{{ opportunity.potential_profit_usdt }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      {% endfor %}
     </table>
   </body>
 </html>

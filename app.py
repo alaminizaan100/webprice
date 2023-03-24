@@ -1,6 +1,5 @@
 from flask import Flask, render_template
 import requests
-import math
 
 app = Flask(__name__)
 
@@ -27,7 +26,7 @@ def binance_data():
     # Create a dictionary of asset names for spot trading
     asset_names = {}
     for asset in info_response['symbols']:
-        if asset['status'] == 'TRADING':
+        if asset['status'] != 'TRADING':
             continue
         asset_names[asset['symbol']] = {
             'base': asset['baseAsset'],
@@ -73,56 +72,20 @@ def binance_data():
                     }
                     opportunities.append(opportunity)
 
-    # Sort the opportunities by potential profit
+    # Sort opportunities by potential profit
     opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
 
-    # Find the highest and lowest potential profits
-    if opportunities:
-        max_profit = opportunities[0]['potential_profit']
-    else:
-        max_profit = 0
-    if opportunities:
-        min_profit = opportunities[-1]['potential_profit']
-    else:
-        min_profit=-10
-    # Calculate the number of nearest opportunities to display
-    num_opportunities = 10
-    if max_profit <= 0:
-        num_opportunities = min(num_opportunities, len(opportunities))
-    
-
-    # Create a list of opportunities to display
-    # Create a list of opportunities to display
-    display_opportunities = []
+    # Add color codes based on profitability
     for opportunity in opportunities:
         if opportunity['potential_profit'] > 0:
-            display_opportunity = {
-                'base_asset': opportunity['base_asset'],
-                'quote_asset_1': opportunity['quote_asset_1'],
-                'quote_asset_2': opportunity['quote_asset_2'],
-                'potential_profit': opportunity['potential_profit'],
-                'potential_profit_usdt': opportunity['potential_profit_usdt'],
-                'profit_or_loss': 'Profit'
-            }
+            opportunity['color'] = 'green'
         else:
-            display_opportunity = {
-                'base_asset': opportunity['base_asset'],
-                'quote_asset_1': opportunity['quote_asset_1'],
-                'quote_asset_2': opportunity['quote_asset_2'],
-                'potential_profit': opportunity['potential_profit'],
-                'potential_profit_usdt': opportunity['potential_profit_usdt'],
-                'profit_or_loss': 'Loss or No Profit'
-            }
-        display_opportunities.append(display_opportunity)
+            opportunity['color'] = 'red'
 
+    num_opportunities = len(opportunities)
 
-    # Render the HTML template with the data
-    return render_template('index.html', opportunities=display_opportunities, usdt_price=usdt_price)
+    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
 

@@ -16,31 +16,23 @@ def binance_data():
     ticker_response = requests.get(ticker_url).json()
     info_response = requests.get(info_url).json()
 
-    # Fetch USDT price
-    usdt_price = 1.0
-    for item in ticker_response:
-        if item['symbol'] == 'USDTBUSD':
-            usdt_price = float(item['price'])
-            break
-
     # Create a dictionary of asset names for spot trading
-    asset_names = {}
+    assets = {}
     for asset in info_response['symbols']:
-        if asset['status'] != 'TRADING':
-            continue
-        asset_names[asset['symbol']] = {
-            'base': asset['baseAsset'],
-            'quote': asset['quoteAsset']
-        }
+        if asset['status'] == 'TRADING':
+            assets[asset['symbol']] = {
+                'base': asset['baseAsset'],
+                'quote': asset['quoteAsset']
+            }
 
     # Create a dictionary to hold the data for each coin
     coins = {}
     for item in ticker_response:
         symbol = item['symbol']
-        if symbol not in asset_names:
+        if symbol not in assets:
             continue
-        base_asset = asset_names[symbol]['base']
-        quote_asset = asset_names[symbol]['quote']
+        base_asset = assets[symbol]['base']
+        quote_asset = assets[symbol]['quote']
         price = float(item['price'])
         if base_asset not in coins:
             coins[base_asset] = {}
@@ -68,7 +60,7 @@ def binance_data():
                         'rate_2': rate_2,
                         'rate_3': rate_3,
                         'potential_profit': round(potential_profit, 4),
-                        'potential_profit_usdt': round(potential_profit * usdt_price, 4)
+                        'potential_profit_pct': round(potential_profit * 100, 2)
                     }
                     opportunities.append(opportunity)
 

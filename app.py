@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+
+Afrom flask import Flask, render_template
 import requests
 import math
 
@@ -87,16 +88,16 @@ def binance_data():
 
     # Create a list of opportunities to display
     display_opportunities = []
-for i in range(num_opportunities):
-    opportunity = opportunities[i]
-    display_opportunity = {
-        'base_asset': opportunity['base_asset'],
-        'quote_asset_1': opportunity['quote_asset_1'],
-        'quote_asset_2': opportunity['quote_asset_2'],
-        'potential_profit': opportunity['potential_profit'],
-        'potential_profit_usdt': opportunity['potential_profit_usdt']
-    }
-    display_opportunities.append(display_opportunity)
+    for i in range(num_opportunities):
+        opportunity = opportunities[i]
+        display_opportunity = {
+            'base_asset': opportunity['base_asset'],
+            'quote_asset_1': opportunity['quote_asset_1'],
+            'quote_asset_2': opportunity['quote_asset_2'],
+            'potential_profit': opportunity['potential_profit'],
+            'potential_profit_usdt': opportunity['potential_profit_usdt']
+        }
+        display_opportunities.append(display_opportunity)
 
-# Render the HTML template with the data
-return render_template('index.html', opportunities=display_opportunities, usdt_price=usdt_price)
+    # Render the HTML template with the data
+    return render_template('index.html', opportunities=display_opportunities, usdt_price=usdt_price)

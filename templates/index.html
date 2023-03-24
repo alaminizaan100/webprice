@@ -5,16 +5,13 @@
   </head>
   <body>
     <h1>Triangular Arbitrage Opportunities</h1>
-    <p>Number of opportunities: {{ num_opportunities }}</p>
+    <p>Current USDT price: {{ usdt_price }}</p>
     <table>
       <thead>
         <tr>
           <th>Base Asset</th>
           <th>Quote Asset 1</th>
           <th>Quote Asset 2</th>
-          <th>Rate 1</th>
-          <th>Rate 2</th>
-          <th>Rate 3</th>
           <th>Potential Profit</th>
           <th>Potential Profit (USDT)</th>
         </tr>
@@ -25,9 +22,6 @@
           <td>{{ opportunity.base_asset }}</td>
           <td>{{ opportunity.quote_asset_1 }}</td>
           <td>{{ opportunity.quote_asset_2 }}</td>
-          <td>{{ opportunity.rate_1 }}</td>
-          <td>{{ opportunity.rate_2 }}</td>
-          <td>{{ opportunity.rate_3 }}</td>
           <td>{{ opportunity.potential_profit }}</td>
           <td>{{ opportunity.potential_profit_usdt }}</td>
         </tr>

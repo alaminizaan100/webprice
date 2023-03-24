@@ -62,5 +62,3 @@ def get_triangular_arbitrage_profit(coin_id, exchange_name):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-

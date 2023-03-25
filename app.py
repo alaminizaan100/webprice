@@ -76,9 +76,9 @@ def get_arbitrage_opportunities(coin):
             else:
                 binance_transfer_fee = 0
 
-                kucoin_transfer_fee_url = f"{KUCOIN_API_URL}/wallet/withdraw/fee?currency={coin}"
-                kucoin_transfer_fee_response = requests.get(kucoin_transfer_fee_url)
-                if kucoin_transfer_fee_response.status_code == 200:
+            kucoin_transfer_fee_url = f"{KUCOIN_API_URL}/wallet/withdraw/fee?currency={coin}"
+            kucoin_transfer_fee_response = requests.get(kucoin_transfer_fee_url)
+            if kucoin_transfer_fee_response.status_code == 200:
                 kucoin_transfer_fee_data = kucoin_transfer_fee_response.json()
                 kucoin_transfer_fee = float(kucoin_transfer_fee_data["withdrawMinFee"])
             else:

@@ -1,33 +1,147 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CCXT Market Data</title>
+	<title>Binance and KuCoin Market Data</title>
+	<style>
+		table, th, td {
+			border: 1px solid black;
+			border-collapse: collapse;
+			padding: 10px;
+		}
+	</style>
 </head>
 <body>
-    <table>
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Binance</th>
-                <th>Kraken</th>
-                <th>Bitfinex</th>
-                <th>Coinbase</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for symbol, market_data in markets.items() %}
-                <tr>
-                    <td>{{ symbol }}</td>
-                    {% for exchange in ['binance', 'kraken', 'bitfinex', 'coinbase'] %}
-                        {% if exchange in market_data %}
-                            <td>{{ market_data[exchange] }}</td>
-                        {% else %}
-                            <td></td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+	<h1>Binance and KuCoin Market Data</h1>
+	
+	<h2>Trade Now Live Coin Prices</h2>
+	<table>
+		<tr>
+			<th>Exchange</th>
+			<th>Coin</th>
+			<th>Price</th>
+		</tr>
+		{% for symbol, ticker in binance_tickers.items() %}
+		<tr>
+			<td>Binance</td>
+			<td>{{ symbol }}</td>
+			<td>{{ ticker.last }}</td>
+		</tr>
+		{% endfor %}
+		{% for symbol, ticker in kucoin_tickers.items() %}
+		<tr>
+			<td>KuCoin</td>
+			<td>{{ symbol }}</td>
+			<td>{{ ticker.last }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	
+	<h2>Trading Fees</h2>
+	<table>
+		<tr>
+			<th>Exchange</th>
+			<th>Maker Fee</th>
+			<th>Taker Fee</th>
+		</tr>
+		<tr>
+			<td>Binance</td>
+			<td>{{ binance_fees.maker }}</td>
+			<td>{{ binance_fees.taker }}</td>
+		</tr>
+		<tr>
+			<td>KuCoin</td>
+			<td>{{ kucoin_fees.maker }}</td>
+			<td>{{ kucoin_fees.taker }}</td>
+		</tr>
+	</table>
+	
+	<h2>Withdrawal Fees</h2>
+	<table>
+		<tr>
+			<th>Exchange</th>
+			<th>Coin</th>
+			<th>Fee</th>
+		</tr>
+		{% for coin, fee in binance_withdrawal_fees.items() %}
+		<tr>
+			<td>Binance</td>
+			<td>{{ coin }}</td>
+			<td>{{ fee.withdraw }}</td>
+		</tr>
+		{% endfor %}
+		{% for coin, fee in kucoin_withdrawal_fees.items() %}
+		<tr>
+			<td>KuCoin</td>
+			<td>{{ coin }}</td>
+			<td>{{ fee.withdraw }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	
+	<h2>Trading Volumes</h2>
+	<table>
+		<tr>
+			<th>Exchange</th>
+			<th>Volume (24h)</th>
+		</tr>
+		<tr>
+			<td>Binance</td>
+			<td>{{ binance_volume.total }}</td>
+		</tr>
+		<tr>
+			<td>KuCoin</td>
+			<td>{{ kucoin_volume.total }}</td>
+		</tr>
+	</table>
+	
+	<h2>Order Book Data (BTC/USDT)</h2>
+	<table>
+		<tr>
+			<th>Exchange</th>
+			<th>Bids (Quantity / Price)</th>
+			<th>Asks (Quantity / Price)</th>
+		</tr>
+		<tr>
+			<td>Binance</td>
+			<td>
+				{% for bid in binance_orderbook.bids[:10] %}
+				<p>{{ bid[1] }} / {{ bid[0] }}</p>
+				{% endfor %}
+			</td>
+			<td>
+				{% for ask in binance_orderbook.asks[:10] %}
+				<p>{{ ask[1] }} / {{ ask[0] }}</p>
+				{% endfor %}
+			</td>
+		</tr>
+		<tr>
+			<td>KuCoin</td>
+			<td>
+				{% for bid in kucoin_orderbook.bids[:10] %}
+				<p>{{ bid[1] }} / {{ bid[0] }}</p>
+				{% endfor %}
+			</td>
+			<td>
+				{% for ask in kucoin_orderbook.asks[:10] %}
+				<p>{{ ask[1] }} / {{ ask[0] }}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+css
+
+<h2>KuCoin Withdrawal Fees</h2>
+<table>
+	<tr>
+		<th>Coin</th>
+		<th>Withdrawal Fee</th>
+	</tr>
+	{% for currency, fee in kucoin_withdrawal_fees.items() %}
+	<tr>
+		<td>{{ currency }}</td>
+		<td>{{ fee }}</td>
+	</tr>
+	{% endfor %}
+</table>
 </body>
 </html>

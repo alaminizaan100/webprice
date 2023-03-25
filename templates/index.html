@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Arbitrage Opportunities</title>
+    <title>CCXT Market Data</title>
 </head>
 <body>
-	<h1>Arbitrage Opportunities</h1>
-	<table>
-		<tr>
-			<th>Market</th>
-			<th>Arbitrage</th>
-			<th>Withdraw Fee</th>
-		</tr>
-		{% for opportunity in opportunities %}
-		<tr>
-			<td>{{ opportunity['market'] }}</td>
-			<td>{{ opportunity['arbitrage'] }}%</td>
-			<td>{{ opportunity['withdraw_fee'] }}</td>
-		</tr>
-		{% endfor %}
-	</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Binance</th>
+                <th>Kraken</th>
+                <th>Bitfinex</th>
+                <th>Coinbase</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for symbol, market_data in markets.items() %}
+                <tr>
+                    <td>{{ symbol }}</td>
+                    {% for exchange in ['binance', 'kraken', 'bitfinex', 'coinbase'] %}
+                        {% if exchange in market_data %}
+                            <td>{{ market_data[exchange] }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

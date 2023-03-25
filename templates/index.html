@@ -1,48 +1,25 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Binance Coin Price and Exchange Info</title>
+    <title>Triangular Arbitrage Calculator</title>
   </head>
   <body>
-    <h1>Binance Coin Price and Exchange Info</h1>
+    <h1>Triangular Arbitrage Calculator</h1>
     <table>
       <thead>
         <tr>
-          <th>Coin</th>
-          <th>Price (USDT)</th>
-          <th>Available for Trading</th>
+          <th>Symbol</th>
+          <th>Triangular Arbitrage Profit (%)</th>
         </tr>
       </thead>
       <tbody>
-        {% for symbol in symbols %}
-          <tr>
-            <td>{{ symbol.baseAsset }}/{{ symbol.quoteAsset }}</td>
-            <td>{{ [price["price"] for price in ticker_prices if price["symbol"] == symbol.symbol][0] }}</td>
-            <td>{{ symbol.status }}</td>
-          </tr>
+        {% for symbol, profit in triangular_arbitrage_profits %}
+        <tr>
+          <td>{{ symbol }}</td>
+          <td>{{ profit }}</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-    <h1>Triangular Arbitrage Opportunity</h1>
-    {% if triangular_arbitrage_profits %}
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Triangular Arbitrage Profit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for symbol, profit in triangular_arbitrage_profits %}
-            <tr>
-              <td>{{ symbol }}</td>
-              <td>{{ profit }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>No triangular arbitrage opportunity found.</p>
-    {% endif %}
   </body>
 </html>

@@ -40,16 +40,24 @@ def index():
     for ticker in ticker_prices:
         symbol = ticker['symbol']
         if symbol in symbols:
-            data.append({
-                'symbol': symbol,
-                'base_asset': symbols[symbol]['base_asset'],
-                'quote_asset': symbols[symbol]['quote_asset'],
-                'price': ticker['price'],
-                '24h_volume': ticker_24h_stats[symbol]['volume'],
-                '24h_change': ticker_24h_stats[symbol]['priceChangePercent'],
-                'withdraw_fee': symbol in exchange_info['withdrawFee'] and exchange_info['withdrawFee'][symbol],
-                'trading_fee': exchange_info['rateLimits'][0]['rate'] / 10000
-            })
+            # Retrieve the 24h stats for the symbol
+            symbol_24h_stats = None
+            for stats in ticker_24h_stats:
+                if stats['symbol'] == symbol:
+                    symbol_24h_stats = stats
+                    break
+            
+            if symbol_24h_stats:
+                data.append({
+                    'symbol': symbol,
+                    'base_asset': symbols[symbol]['base_asset'],
+                    'quote_asset': symbols[symbol]['quote_asset'],
+                    'price': ticker['price'],
+                    '24h_volume': symbol_24h_stats['volume'],
+                    '24h_change': symbol_24h_stats['priceChangePercent'],
+                    'withdraw_fee': symbol in exchange_info['withdrawFee'],
+                    'trading_fee': exchange_info['rateLimits'][0]['rate'] / 10000
+                })
 
     # Retrieve order book for all trading symbols
     depth_data = {}

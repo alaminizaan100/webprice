@@ -59,18 +59,17 @@ def binance_data():
                     rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
                     rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
                     rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                    if rate_1 * rate_2 * rate_3 >30:
-                        opportunity = {
-                            'base_asset': base_asset,
-                            'quote_asset_1': quote_asset_1,
-                            'quote_asset_2': quote_asset_2,
-                            'rate_1': rate_1,
-                            'rate_2': rate_2,
-                            'rate_3': rate_3,
-                            'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4),
-                            'potential_profit_usdt': round((rate_1 * rate_2 * rate_3 - 1) * usdt_price, 4)
-                        }
-                        opportunities.append(opportunity)
+                    opportunity = {
+                        'base_asset': base_asset,
+                        'quote_asset_1': quote_asset_1,
+                        'quote_asset_2': quote_asset_2,
+                        'rate_1': rate_1,
+                        'rate_2': rate_2,
+                        'rate_3': rate_3,
+                        'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4),
+                        'potential_profit_usdt': round((rate_1 * rate_2 * rate_3 - 1) * usdt_price, 4)
+                    }
+                    opportunities.append(opportunity)
 
     opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
 

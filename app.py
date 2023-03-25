@@ -106,8 +106,8 @@ def get_arbitrage_opportunities(coin):
                     "potential_profit_margin": potential_profit_margin
                 })
 
-# Sort the arbitrage opportunities by potential profit margin (highest to lowest)
-sorted_arbitrage_opportunities = sorted(arbitrage_opportunities, key=lambda x: x["potential_profit_margin"], reverse=True)
+    # Sort the arbitrage opportunities by potential profit margin (highest to lowest)
+    sorted_arbitrage_opportunities = sorted(arbitrage_opportunities, key=lambda x: x["potential_profit_margin"], reverse=True)
 
 # Return the sorted list of arbitrage opportunities as JSON
 return jsonify(sorted_arbitrage_opportunities)

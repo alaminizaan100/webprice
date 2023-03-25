@@ -3,44 +3,72 @@ import requests
 
 app = Flask(__name__)
 
-# Binance API endpoints
-BASE_URL = "https://api.binance.com/api/v3"
-EXCHANGE_INFO_URL = BASE_URL + "/exchangeInfo"
-TICKER_PRICE_URL = BASE_URL + "/ticker/price"
+@app.route('/')
+def binance_data():
+    # API endpoint for ticker prices
+    ticker_url = 'https://api.binance.com/api/v3/ticker/price'
+    # API endpoint for spot exchange information
+    info_url = 'https://api.binance.com/api/v3/exchangeInfo'
+    # Trading fee as decimal
+    trading_fee = 0.001
 
-@app.route("/")
-def home():
-    # Get exchange info from Binance API
-    exchange_info = requests.get(EXCHANGE_INFO_URL).json()
+    # Make the API requests
+    ticker_response = requests.get(ticker_url).json()
+    info_response = requests.get(info_url).json()
 
-    # Get ticker prices from Binance API
-    ticker_prices = requests.get(TICKER_PRICE_URL).json()
+    # Fetch USDT price
+    usdt_price = 1.0
+    for item in ticker_response:
+        if item['symbol'] == 'USDTBUSD':
+            usdt_price = float(item['price'])
+            break
 
-    # Filter out symbols that are not available for trading
-    symbols_available_for_trading = [symbol for symbol in exchange_info["symbols"] if symbol["status"] == "TRADING"]
+    # Create a list of active trading assets
+    active_assets = []
+    for asset in info_response['symbols']:
+        if asset['status'] == 'TRADING':
+            active_assets.append(asset['symbol'])
 
-    # Calculate triangular arbitrage profit for each symbol
-    triangular_arbitrage_profits = []
-    for symbol in symbols_available_for_trading:
-        # Extract base and quote currencies
-        base_currency = symbol["baseAsset"]
-        quote_currency = symbol["quoteAsset"]
-        
-        # Check if there are any pairs that can be used for triangular arbitrage
-        for pair in exchange_info["symbols"]:
-            if pair["baseAsset"] == quote_currency:
-                for pair2 in exchange_info["symbols"]:
-                    if pair2["baseAsset"] == pair["quoteAsset"] and pair2["quoteAsset"] == base_currency:
-                        # Calculate triangular arbitrage profit assuming no trading fee and initial investment of 100 USDT
-                        rate1 = float([price["price"] for price in ticker_prices if price["symbol"] == symbol["symbol"]][0])
-                        rate2 = float([price["price"] for price in ticker_prices if price["symbol"] == pair["symbol"]][0])
-                        rate3 = float([price["price"] for price in ticker_prices if price["symbol"] == pair2["symbol"]][0])
-                        triangular_arbitrage_profit = 100 * rate1 / rate2 * rate3 / 100 - 100
-                        if triangular_arbitrage_profit > 0:
-                            triangular_arbitrage_profits.append((symbol["symbol"], triangular_arbitrage_profit))
+    # Create a dictionary to hold the data for each coin
+    coins = {}
+    for item in ticker_response:
+        symbol = item['symbol']
+        if symbol not in active_assets:
+            continue
+        base_asset, quote_asset = symbol[:-3], symbol[-3:]
+        price = float(item['price'])
+        if base_asset not in coins:
+            coins[base_asset] = {}
+        coins[base_asset][quote_asset] = price
 
-    # Render template with data
-    return render_template("index.html", symbols=symbols_available_for_trading, triangular_arbitrage_profits=triangular_arbitrage_profits)
+    # Find triangular arbitrage opportunities
+    opportunities = []
+    for base_asset in coins:
+        for quote_asset_1 in coins[base_asset]:
+            for quote_asset_2 in coins[quote_asset_1]:
+                if base_asset in coins[quote_asset_2]:
+                    rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
+                    rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
+                    rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
+                    if rate_1 * rate_2 * rate_3 > 0.000001:
+                        opportunity = {
+                            'base_asset': base_asset,
+                            'quote_asset_1': quote_asset_1,
+                            'quote_asset_2': quote_asset_2,
+                            'rate_1': rate_1,
+                            'rate_2': rate_2,
+                            'rate_3': rate_3,
+                            'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4),
+                            'potential_profit_usdt': round((rate_1 * rate_2 * rate_3 - 1) * usdt_price, 4)
+                        }
+                        opportunities.append(opportunity)
 
-if __name__ == "__main__":
+    opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
+
+    num_opportunities = len(opportunities)
+
+   
+    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
+
+if __name__ == '__main__':
     app.run(debug=True)

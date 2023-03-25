@@ -19,9 +19,6 @@ kucoin = ccxt.kucoin({
     'secret': kucoin_secret
 })
 
-# Define the KuCoin trading fee
-kucoin_trading_fee = 0.001
-
 @app.route('/')
 def index():
     # Get all tickers for Binance and KuCoin
@@ -30,9 +27,10 @@ def index():
 
     # Get trading fees for Binance and KuCoin
     binance_fees = binance.fetch_trading_fees()
-    kucoin_fees = kucoin.fetch_trading_fees()
-    kucoin_fees['trading']['maker'] = kucoin_trading_fee
-    kucoin_fees['trading']['taker'] = kucoin_trading_fee
+    kucoin_fees = {
+        'maker': 0.1 / 100,  # 0.1%
+        'taker': 0.1 / 100,  # 0.1%
+    }
 
     # Get withdrawal fees for Binance and KuCoin
     binance_withdrawal_fees = binance.fetch_funding_fees()

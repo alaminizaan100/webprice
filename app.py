@@ -1,60 +1,61 @@
 from flask import Flask, render_template
-import ccxt
+import requests
 
 app = Flask(__name__)
 
-# Add your API keys and secrets here
-binance_api_key = 'OtmdN18Tgx7VjnLyD4Ulc7ooNUaS0ezw38EZtTXvz0Eln4LxePIGCjOC95WG80OG'
-binance_secret = 'ShmYzH63927bieEp6SgHTDXv3hlEdkiePHMsSpdXpbviKNJbGpPSS6M3YSTACq4u'
-kucoin_api_key = 'your_kucoin_api_key'
-kucoin_secret = 'your_kucoin_secret'
-
-# Initialize Binance and KuCoin exchanges with API keys and secrets
-binance = ccxt.binance({
-    'apiKey': binance_api_key,
-    'secret': binance_secret
-})
-kucoin = ccxt.kucoin({
-    'apiKey': kucoin_api_key,
-    'secret': kucoin_secret
-})
+# Binance API endpoints
+api_base_url = "https://api.binance.com"
+ticker_price_endpoint = "/api/v3/ticker/price"
+exchange_info_endpoint = "/api/v3/exchangeInfo"
+ticker_24h_endpoint = "/api/v3/ticker/24hr"
+depth_endpoint = "/api/v3/depth"
 
 @app.route('/')
 def index():
-    # Get all tickers for Binance and KuCoin
-    binance_tickers = binance.fetch_tickers()
-    kucoin_tickers = kucoin.fetch_tickers()
+    # Retrieve all ticker prices
+    ticker_prices = requests.get(api_base_url + ticker_price_endpoint).json()
 
-    # Get trading fees for Binance and KuCoin
-    binance_fees = binance.fetch_trading_fees()
-    kucoin_fees = {
-        'maker': 0.1 / 100,  # 0.1%
-        'taker': 0.1 / 100,  # 0.1%
-    }
+    # Retrieve exchange info
+    exchange_info = requests.get(api_base_url + exchange_info_endpoint).json()
 
-    # Get withdrawal fees for Binance and KuCoin
-    binance_withdrawal_fees = binance.fetch_funding_fees()
-    kucoin_withdrawal_fees = kucoin.fetch_funding_fees()
+    # Retrieve 24-hour ticker statistics for all symbols
+    ticker_24h_stats = requests.get(api_base_url + ticker_24h_endpoint).json()
 
-    # Get trading volumes for Binance and KuCoin
-    binance_volume = binance.fetch_trading_volume()
-    kucoin_volume = kucoin.fetch_trading_volume()
+    # Parse exchange info to extract symbol and base asset info
+    symbols = {}
+    for symbol in exchange_info['symbols']:
+        if symbol['status'] == "TRADING":
+            symbol_name = symbol['symbol']
+            base_asset = symbol['baseAsset']
+            quote_asset = symbol['quoteAsset']
+            symbols[symbol_name] = {'base_asset': base_asset, 'quote_asset': quote_asset}
 
-    # Get order book data for BTC/USDT on Binance and KuCoin
-    binance_orderbook = binance.fetch_order_book('BTC/USDT')
-    kucoin_orderbook = kucoin.fetch_order_book('BTC/USDT')
+    # Combine ticker prices and 24h stats with symbol and asset info
+    data = []
+    for ticker in ticker_prices:
+        symbol = ticker['symbol']
+        if symbol in symbols:
+            data.append({
+                'symbol': symbol,
+                'base_asset': symbols[symbol]['base_asset'],
+                'quote_asset': symbols[symbol]['quote_asset'],
+                'price': ticker['price'],
+                '24h_volume': ticker_24h_stats[symbol]['volume'],
+                '24h_change': ticker_24h_stats[symbol]['priceChangePercent'],
+                'withdraw_fee': symbol in exchange_info['withdrawFee'] and exchange_info['withdrawFee'][symbol],
+                'trading_fee': exchange_info['rateLimits'][0]['rate'] / 10000
+            })
 
-    return render_template('index.html', 
-                           binance_tickers=binance_tickers, 
-                           kucoin_tickers=kucoin_tickers,
-                           binance_fees=binance_fees,
-                           kucoin_fees=kucoin_fees,
-                           binance_withdrawal_fees=binance_withdrawal_fees,
-                           kucoin_withdrawal_fees=kucoin_withdrawal_fees,
-                           binance_volume=binance_volume,
-                           kucoin_volume=kucoin_volume,
-                           binance_orderbook=binance_orderbook,
-                           kucoin_orderbook=kucoin_orderbook)
+    # Retrieve order book for all trading symbols
+    depth_data = {}
+    for symbol in symbols.keys():
+        depth = requests.get(api_base_url + depth_endpoint, params={'symbol': symbol}).json()
+        bids = depth['bids']
+        asks = depth['asks']
+        depth_data[symbol] = {'bids': bids, 'asks': asks}
+
+    # Render HTML template with data
+    return render_template('index.html', data=data, depth_data=depth_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

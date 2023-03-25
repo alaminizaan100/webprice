@@ -1,44 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Binance Ticker Prices</title>
-  <style>
-    /* Add some basic styling */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #4CAF50;
-      color: white;
-    }
-  </style>
-</head>
-<body>
-  <h1>Binance Ticker Prices</h1>
-  <p>Number of coins: {{ num_coins }}</p>
-  <table>
-    <tr>
-      <th>Order</th>
-      <th>Name</th>
-      <th>Price</th>
-      <th>Volume</th>
-      <th>Quote Volume</th>
-    </tr>
-    {% for coin in coins %}
-    <tr>
-      <td>{{ coin['order'] }}</td>
-      <td>{{ coin['name'] }}</td>
-      <td>{{ coin['price'] }}</td>
-      <td>{{ coin['volume'] }}</td>
-      <td>{{ coin['quote'] }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</body>
+  <head>
+    <title>Binance Triangular Arbitrage Opportunities</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Binance Triangular Arbitrage Opportunities</h1>
+      <p>There are {{ num_opportunities }} triangular arbitrage opportunities available.</p>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Base Asset</th>
+            <th>Quote Asset 1</th>
+            <th>Quote Asset 2</th>
+            <th>Rate 1</th>
+            <th>Rate 2</th>
+            <th>Rate 3</th>
+            <th>Potential Profit</th>
+            <th>Potential Profit in USDT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for opportunity in opportunities %}
+          <tr>
+            <td>{{ opportunity.base_asset }}</td>
+            <td>{{ opportunity.quote_asset_1 }}</td>
+            <td>{{ opportunity.quote_asset_2 }}</td>
+            <td>{{ opportunity.rate_1 }}</td>
+            <td>{{ opportunity.rate_2 }}</td>
+            <td>{{ opportunity.rate_3 }}</td>
+            <td>{{ opportunity.potential_profit }}</td>
+            <td>{{ opportunity.potential_profit_usdt }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
 </html>

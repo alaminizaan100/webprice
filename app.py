@@ -26,7 +26,7 @@ def binance_data():
     # Create a dictionary of asset names for spot trading
     asset_names = {}
     for asset in info_response['symbols']:
-        if asset['status'] != 'TRADING':
+        if asset['status'] = 'TRADING':
             continue
         asset_names[asset['symbol']] = {
             'base': asset['baseAsset'],

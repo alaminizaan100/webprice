@@ -82,4 +82,10 @@ def binance_data():
 
     opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
 
-    num_opportunities = len(op
+    num_opportunities = len(opportunities)
+
+   
+    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -3,9 +3,21 @@ import ccxt
 
 app = Flask(__name__)
 
-# Initialize Binance and KuCoin exchanges
-binance = ccxt.binance()
-kucoin = ccxt.kucoin()
+# Add your API keys and secrets here
+binance_api_key = 'OtmdN18Tgx7VjnLyD4Ulc7ooNUaS0ezw38EZtTXvz0Eln4LxePIGCjOC95WG80OG'
+binance_secret = 'ShmYzH63927bieEp6SgHTDXv3hlEdkiePHMsSpdXpbviKNJbGpPSS6M3YSTACq4u'
+kucoin_api_key = 'your_kucoin_api_key'
+kucoin_secret = 'your_kucoin_secret'
+
+# Initialize Binance and KuCoin exchanges with API keys and secrets
+binance = ccxt.binance({
+    'apiKey': binance_api_key,
+    'secret': binance_secret
+})
+kucoin = ccxt.kucoin({
+    'apiKey': kucoin_api_key,
+    'secret': kucoin_secret
+})
 
 @app.route('/')
 def index():

@@ -1,92 +1,39 @@
+import ccxt
 from flask import Flask, render_template
-import requests
 
 app = Flask(__name__)
 
-# List of API endpoints for ticker prices
-ticker_urls = [
-    'https://api.binance.com/api/v3/ticker/price',
-    'https://api.bitfinex.com/v1/pubticker/all',
-    # Add more exchange endpoints here
-]
-
-# List of API endpoints for exchange information
-info_urls = [
-    'https://api.binance.com/api/v3/exchangeInfo',
-    'https://api.bitfinex.com/v1/symbols_details',
-    # Add more exchange endpoints here
-]
-
-# Trading fee as decimal
-trading_fee = 0.001
-
 @app.route('/')
-def binance_data():
-    opportunities = []
-    for i in range(len(ticker_urls)):
-        # Make the API requests
-        ticker_response = requests.get(ticker_urls[i]).json()
-        info_response = requests.get(info_urls[i]).json()
-
-        # Fetch USDT price
-        usdt_price = 1.0
-        for item in ticker_response:
-            if item['symbol'] == 'USDTBUSD':
-                usdt_price = float(item['price'])
-
-        # Create a dictionary of asset names for spot trading
-        asset_names = {}
-        for asset in info_response:
-            if asset['status'] != 'TRADING':
-                continue
-            asset_names[asset['symbol']] = {
-                'base': asset['base'],
-                'quote': asset['quote']
-            }
-
-        # Create a dictionary to hold the data for each coin
-        coins = {}
-        for symbol in ticker_response:
-            if symbol not in asset_names:
-                continue
-            base_asset = asset_names[symbol]['base']
-            quote_asset = asset_names[symbol]['quote']
-            price = float(ticker_response[symbol]['last_price'])
-            if base_asset not in coins:
-                coins[base_asset] = {}
-            coins[base_asset][quote_asset] = price
-
-        # Find triangular arbitrage opportunities
-        for base_asset in coins:
-            for quote_asset_1 in coins[base_asset]:
-                if quote_asset_1 not in coins:
-                    continue
-                for quote_asset_2 in coins[quote_asset_1]:
-                    if quote_asset_2 not in coins:
-                        continue
-                    if base_asset in coins[quote_asset_2]:
-                        rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
-                        rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
-                        rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                        opportunity = {
-                            'exchange': i+1,
-                            'base_asset': base_asset,
-                            'quote_asset_1': quote_asset_1,
-                            'quote_asset_2': quote_asset_2,
-                            'rate_1': rate_1,
-                            'rate_2': rate_2,
-                            'rate_3': rate_3,
-                            'potential_profit': round(rate_1 * rate_2 * rate_3 - 1, 4),
-                            'potential_profit_usdt': round((rate_1 * rate_2 * rate_3 - 1) * usdt_price, 4)
-                        }
-                        opportunities.append(opportunity)
-
-    opportunities = sorted(opportunities, key=lambda x: x['potential_profit'], reverse=True)
-
-    num_opportunities = len(opportunities)
-
-   
-    return render_template('index.html', opportunities=opportunities, num_opportunities=num_opportunities)
+def index():
+    exchanges = ccxt.exchanges
+    symbols = []
+    for exchange_name in exchanges:
+        exchange = getattr(ccxt, exchange_name)()
+        markets = exchange.load_markets()
+        for symbol in markets:
+            symbols.append(symbol)
+    results = []
+    for symbol in symbols:
+        for exchange_name in exchanges:
+            exchange_buy = getattr(ccxt, exchange_name)()
+            exchange_sell = getattr(ccxt, exchange_name)()
+            exchange_buy.load_markets()
+            exchange_sell.load_markets()
+            if symbol in exchange_buy.markets and symbol in exchange_sell.markets:
+                if exchange_buy.id != exchange_sell.id:
+                    orderbook_buy = exchange_buy.fetch_order_book(symbol)
+                    orderbook_sell = exchange_sell.fetch_order_book(symbol)
+                    if 'asks' in orderbook_sell and 'bids' in orderbook_buy:
+                        buy_price = orderbook_buy['bids'][0][0]
+                        sell_price = orderbook_sell['asks'][0][0]
+                        transfer_in_fee = exchange_buy.calculate_fee(symbol, 'deposit', 1, 'BTC', 'maker')
+                        transfer_out_fee = exchange_sell.calculate_fee(symbol, 'withdraw', 1, 'BTC', 'taker')
+                        btc_profit = (sell_price * (1 - transfer_out_fee / 100)) - (buy_price * (1 + transfer_in_fee / 100))
+                        usdt_profit = btc_profit * sell_price
+                        if usdt_profit > 0:
+                            result = {'symbol': symbol, 'exchange_buy': exchange_buy.id, 'exchange_sell': exchange_sell.id, 'btc_profit': btc_profit, 'usdt_profit': usdt_profit}
+                            results.append(result)
+    return render_template('index.html', results=results)
 
 if __name__ == '__main__':
     app.run(debug=True)

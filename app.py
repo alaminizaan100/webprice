@@ -21,6 +21,11 @@ def index():
     # Retrieve 24-hour ticker statistics for all symbols
     ticker_24h_stats = requests.get(api_base_url + ticker_24h_endpoint).json()
 
+    # Check if ticker_24h_stats is a list
+    if not isinstance(ticker_24h_stats, list):
+        # If it's not a list, try to extract the relevant data from the dictionary
+        ticker_24h_stats = [ticker_24h_stats[symbol] for symbol in ticker_24h_stats]
+
     # Parse exchange info to extract symbol and base asset info
     symbols = {}
     for symbol in exchange_info['symbols']:

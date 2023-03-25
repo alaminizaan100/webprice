@@ -1,32 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Arbitrage Opportunities</title>
+	<title>Arbitrage Opportunities</title>
 </head>
 <body>
-    <h1>Arbitrage Opportunities</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Buy Exchange</th>
-                <th>Sell Exchange</th>
-                <th>Profit (BTC)</th>
-                <th>Profit (USDT)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
-                <tr>
-                    <td>{{ result.symbol }}</td>
-                    <td>{{ result.exchange_buy }}</td>
-                    <td>{{ result.exchange_sell }}</td>
-                    <td>{{ result.btc_profit }}</td>
-                    <td>{{ result.usdt_profit }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p>Total Profit: {{ total_profit_usdt }} USDT / {{ total_profit_btc }} BTC</p>
+	<h1>Arbitrage Opportunities</h1>
+	<table>
+		<tr>
+			<th>Market</th>
+			<th>Arbitrage</th>
+			<th>Withdraw Fee</th>
+		</tr>
+		{% for opportunity in opportunities %}
+		<tr>
+			<td>{{ opportunity['market'] }}</td>
+			<td>{{ opportunity['arbitrage'] }}%</td>
+			<td>{{ opportunity['withdraw_fee'] }}</td>
+		</tr>
+		{% endfor %}
+	</table>
 </body>
 </html>

@@ -23,19 +23,24 @@ def binance_data():
             usdt_price = float(item['price'])
             break
 
-    # Create a list of active trading assets
-    active_assets = []
+    # Create a dictionary of asset names for spot trading
+    asset_names = {}
     for asset in info_response['symbols']:
-        if asset['status'] == 'TRADING':
-            active_assets.append(asset['symbol'])
+        if asset['status'] != 'TRADING':
+            continue
+        asset_names[asset['symbol']] = {
+            'base': asset['baseAsset'],
+            'quote': asset['quoteAsset']
+        }
 
     # Create a dictionary to hold the data for each coin
     coins = {}
     for item in ticker_response:
         symbol = item['symbol']
-        if symbol not in active_assets:
+        if symbol not in asset_names:
             continue
-        base_asset, quote_asset = symbol[:-3], symbol[-3:]
+        base_asset = asset_names[symbol]['base']
+        quote_asset = asset_names[symbol]['quote']
         price = float(item['price'])
         if base_asset not in coins:
             coins[base_asset] = {}
@@ -45,12 +50,16 @@ def binance_data():
     opportunities = []
     for base_asset in coins:
         for quote_asset_1 in coins[base_asset]:
+            if quote_asset_1 not in coins:
+                continue
             for quote_asset_2 in coins[quote_asset_1]:
+                if quote_asset_2 not in coins:
+                    continue
                 if base_asset in coins[quote_asset_2]:
                     rate_1 = coins[base_asset][quote_asset_1] * (1 - trading_fee)
                     rate_2 = coins[quote_asset_1][quote_asset_2] * (1 - trading_fee)
                     rate_3 = coins[quote_asset_2][base_asset] * (1 - trading_fee)
-                    if rate_1 * rate_2 * rate_3 > 0.000001:
+                    if rate_1 * rate_2 * rate_3 > 1:
                         opportunity = {
                             'base_asset': base_asset,
                             'quote_asset_1': quote_asset_1,

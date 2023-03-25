@@ -30,8 +30,9 @@ def binance_data():
 
         # Fetch USDT price
         usdt_price = 1.0
-        if 'USDT' in ticker_response:
-            usdt_price = float(ticker_response['USDT']['last_price'])
+        for item in ticker_response:
+            if item['symbol'] == 'USDTBUSD':
+                usdt_price = float(item['price'])
 
         # Create a dictionary of asset names for spot trading
         asset_names = {}

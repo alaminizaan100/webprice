@@ -19,14 +19,14 @@ def binance_data():
     # Fetch USDT price
     usdt_price = 1.0
     for item in ticker_response:
-        if item['symbol'] == 'USDTBUSD':
+        if item['symbol'] == 'BUSDUSDT':
             usdt_price = float(item['price'])
             break
 
     # Create a dictionary of asset names for spot trading
     asset_names = {}
     for asset in info_response['symbols']:
-        if asset['status'] = 'TRADING':
+        if asset['status'] != 'BREAK':
             continue
         asset_names[asset['symbol']] = {
             'base': asset['baseAsset'],

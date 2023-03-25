@@ -7,7 +7,11 @@ app = Flask(__name__)
 def index():
     # Exchange objects for Binance and KuCoin
     binance = ccxt.binance()
-    kucoin = ccxt.kucoin()
+    kucoin = ccxt.kucoin({
+        'enableRateLimit': True,
+        'apiKey': 'YOUR_API_KEY',
+        'secret': 'YOUR_SECRET_KEY',
+    })
     
     # Get all the markets available on both exchanges
     binance_markets = binance.load_markets()
@@ -30,11 +34,13 @@ def index():
         
         # If the arbitrage opportunity is positive, add it to the list of opportunities
         if arbitrage > 0:
-            withdraw_fee = binance.fees['withdraw'][binance_ticker['symbol'].split('/')[0]]
+            binance_withdraw_fee = binance.fees['withdraw'][binance_ticker['symbol'].split('/')[0]]
+            kucoin_withdraw_fee = kucoin.fees['withdraw'][kucoin_ticker['symbol'].split('/')[0]]
             arbitrage_opportunities.append({
                 'market': market,
                 'arbitrage': round(arbitrage, 2),
-                'withdraw_fee': withdraw_fee
+                'binance_withdraw_fee': binance_withdraw_fee,
+                'kucoin_withdraw_fee': kucoin_withdraw_fee,
             })
     
     # Render the HTML template with the list of opportunities

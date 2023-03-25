@@ -1,25 +1,34 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Triangular Arbitrage Calculator</title>
-  </head>
-  <body>
-    <h1>Triangular Arbitrage Calculator</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Symbol</th>
-          <th>Triangular Arbitrage Profit (%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for symbol, profit in triangular_arbitrage_profits %}
-        <tr>
-          <td>{{ symbol }}</td>
-          <td>{{ profit }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </body>
+<head>
+	<title>Triangular Arbitrage Opportunities</title>
+</head>
+<body>
+	<h1>Triangular Arbitrage Opportunities</h1>
+	<p>Number of opportunities found: {{ num_opportunities }}</p>
+	<table>
+		<tr>
+			<th>Base Asset</th>
+			<th>Quote Asset 1</th>
+			<th>Quote Asset 2</th>
+			<th>Rate 1</th>
+			<th>Rate 2</th>
+			<th>Rate 3</th>
+			<th>Potential Profit</th>
+			<th>Potential Profit in USDT</th>
+		</tr>
+		{% for opportunity in opportunities %}
+		<tr>
+			<td>{{ opportunity.base_asset }}</td>
+			<td>{{ opportunity.quote_asset_1 }}</td>
+			<td>{{ opportunity.quote_asset_2 }}</td>
+			<td>{{ opportunity.rate_1 }}</td>
+			<td>{{ opportunity.rate_2 }}</td>
+			<td>{{ opportunity.rate_3 }}</td>
+			<td>{{ opportunity.potential_profit }}</td>
+			<td>{{ opportunity.potential_profit_usdt }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</body>
 </html>

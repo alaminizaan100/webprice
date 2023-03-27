@@ -1,75 +1,79 @@
 from flask import Flask, render_template
 import requests
+import json
 
 app = Flask(__name__)
 
-def get_coins():
-    try:
-        url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h"
-        coins = requests.get(url, timeout=200).json()
+def get_exchange_data():
+    exchanges = {
+        "binance": "https://api.binance.com/api/v3/ticker/price",
+        "bitfinex": "https://api.bitfinex.com/v1/pubticker/BTCUSD",
+        "bittrex": "https://api.bittrex.com/api/v1.1/public/getticker?market=USD-BTC",
+        "coinbase": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+        "kraken": "https://api.kraken.com/0/public/Ticker?pair=XBTUSD"
+    }
 
-        exchanges = ['binance', 'kucoin']
+    exchange_data = {}
+    for exchange, url in exchanges.items():
+        response = requests.get(url)
+        data = json.loads(response.text)
 
-        result = []
-        for coin in coins:
-            coin_dict = {}
-            coin_dict['prices'] = {}
-            for exchange in exchanges:
-                try:
-                    url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin['id']}&vs_currencies={exchange}&include_last_updated_at=true&include_24hr_change=true&include_24hr_vol=true&include_liquidity_rate=true&include_market_cap=true&include_trade_volume_24h=true&include_total_supply=true&include_circulating_supply=true&include_roi=true"
-                    response = requests.get(url, timeout=10)
-                    if response.status_code == 200:
-                        data = response.json()
-                        if data.get(coin['id']):
-                            coin_dict['prices'][exchange] = data[coin['id']]
-                except requests.exceptions.Timeout:
-                    print(f"Timeout error when fetching data for {coin['name']} from {exchange}")
-                except requests.exceptions.RequestException as e:
-                    print(f"Error when fetching data for {coin['name']} from {exchange}: {e}")
+        # extract data for all coins
+        if exchange == "binance":
+            for coin in data:
+                if coin["symbol"].endswith("USDT"):
+                    symbol = coin["symbol"][:-4]
+                    price = float(coin["price"])
+                    if symbol in exchange_data:
+                        exchange_data[symbol][exchange] = price
+                    else:
+                        exchange_data[symbol] = {exchange: price}
+        elif exchange == "bitfinex":
+            symbol = "BTC"
+            price = float(data["last_price"])
+            if symbol in exchange_data:
+                exchange_data[symbol][exchange] = price
+            else:
+                exchange_data[symbol] = {exchange: price}
+        elif exchange == "bittrex":
+            symbol = "BTC"
+            price = float(data["result"]["Last"])
+            if symbol in exchange_data:
+                exchange_data[symbol][exchange] = price
+            else:
+                exchange_data[symbol] = {exchange: price}
+        elif exchange == "coinbase":
+            symbol = "BTC"
+            price = float(data["data"]["amount"])
+            if symbol in exchange_data:
+                exchange_data[symbol][exchange] = price
+            else:
+                exchange_data[symbol] = {exchange: price}
+        elif exchange == "kraken":
+            symbol = "BTC"
+            price = float(data["result"]["XXBTZUSD"]["c"][0])
+            if symbol in exchange_data:
+                exchange_data[symbol][exchange] = price
+            else:
+                exchange_data[symbol] = {exchange: price}
 
-            coin_dict['is_active'] = len(coin_dict['prices']) > 0
-            if coin_dict['is_active']:
-                coin_dict['id'] = coin['id']
-                coin_dict['name'] = coin['name']
-                coin_dict['symbol'] = coin['symbol']
-                result.append(coin_dict)
+    return exchange_data
 
-        return result
+def get_arbitrage_opportunities(exchange_data):
+    opportunities = []
+    for coin, prices in exchange_data.items():
+        max_price = max(prices.values())
+        min_price = min(prices.values())
+        if max_price > min_price:
+            arb = ((max_price - min_price) / min_price) * 100
+            opportunities.append({"coin": coin, "arb": arb})
+    return sorted(opportunities, key=lambda x: x["arb"], reverse=True)
 
-    except requests.exceptions.Timeout:
-        print("Timeout error when fetching coin data from Coingecko API")
-    except requests.exceptions.RequestException as e:
-        print(f"Error when fetching coin data from Coingecko API: {e}")
+@app.route("/")
+def home():
+    exchange_data = get_exchange_data()
+    opportunities = get_arbitrage_opportunities(exchange_data)
+    return render_template("home.html", exchange_data=exchange_data, opportunities=opportunities)
 
-    return []
-
-@app.route('/')
-def index():
-    coins = get_coins()
-
-    for coin in coins:
-        prices = coin['prices']
-        if len(prices) == 0:
-            continue
-
-        low_exchange = min(prices, key=prices.get)
-        high_exchange = max(prices, key=prices.get)
-
-        low_price = prices[low_exchange]
-        high_price = prices[high_exchange]
-        if low_price == 0:
-            percentage_diff = float('inf')
-        else:
-            percentage_diff = (high_price - low_price) / low_price * 100
-
-        coin['low_exchange'] = low_exchange
-        coin['high_exchange'] = high_exchange
-        coin['percentage_diff'] = round(percentage_diff, 2)
-
-    coins = sorted(coins, key=lambda k: k['percentage_diff'], reverse=True)
-
-    return render_template('index.html', coins=coins)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

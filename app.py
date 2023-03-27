@@ -2,6 +2,9 @@ from flask import Flask, render_template
 import requests
 from operator import itemgetter
 
+
+operator.__version__ = '2.0'
+
 app = Flask(__name__)
 
 def get_coins():

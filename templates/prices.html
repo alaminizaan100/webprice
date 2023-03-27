@@ -1,39 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Exchange Trading Coin Prices</title>
-  </head>
-  <body>
-    <h1>Exchange Trading Coin Prices</h1>
+<head>
+    <title>Crypto Arbitrage</title>
+</head>
+<body>
+    <h1>Crypto Prices</h1>
     <table>
-      <tr>
-        <th>Coin</th>
-        <th>Binance</th>
-        <th>Bitfinex</th>
-        <th>Bitstamp</th>
-        <th>Coinbase Pro</th>
-        <th>Kraken</th>
-        <th>Huobi</th>
-        <th>OKEx</th>
-        <th>Upbit</th>
-        <th>Bithumb</th>
-        <th>Bitflyer</th>
-      </tr>
-      {% for symbol, price in prices.items() %}
-      <tr>
-        <td>{{ symbol }}</td>
-        <td>{{ prices[f"Binance - {symbol}"] }}</td>
-        <td>{{ prices[f"Bitfinex - {symbol}"] }}</td>
-        <td>{{ prices[f"Bitstamp - {symbol}"] }}</td>
-        <td>{{ prices[f"Coinbase Pro - {symbol}"] }}</td>
-        <td>{{ prices[f"Kraken - {symbol}"] }}</td>
-        <td>{{ prices[f"Huobi - {symbol}"] }}</td>
-        <td>{{ prices[f"OKEx - {symbol}"] }}</td>
-        <td>{{ prices[f"Upbit - {symbol}"] }}</td>
-        <td>{{ prices[f"Bithumb - {symbol}"] }}</td>
-        <td>{{ prices[f"Bitflyer - {symbol}"] }}</td>
-      </tr>
-      {% endfor %}
+        <thead>
+            <tr>
+                <th>Coin</th>
+                {% for exchange in prices['Bitcoin'] %}
+                    <th>{{ exchange }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for coin in prices %}
+                <tr>
+                    <td>{{ coin }}</td>
+                    {% for exchange in prices[coin] %}
+                        <td>{{ prices[coin][exchange] }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
-  </body>
+    <h1>Crypto Arbitrage</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Coin</th>
+                {% for exchange in prices['Bitcoin'] %}
+                    <th>{{ exchange }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for coin in prices %}
+                <tr>
+                    <td>{{ coin }}</td>
+                    {% for exchange in prices[coin] %}
+                        <td>{{ arbitrage[coin][exchange] }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
 </html>

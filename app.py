@@ -17,12 +17,14 @@ def get_coins():
         coin['prices'] = {}
         for exchange in exchanges:
             # Fetch coin price from the exchange
-            url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin['id']}&vs_currencies=usd&include_last_updated_at=true&include_24hr_change=true&include_24hr_vol=true&contract_addresses=0x495f947276749Ce646f68AC8c248420045cb7b5e&include_liquidity_rate=true&include_market_cap=true&include_trade_volume_24h=true&include_total_supply=true&include_circulating_supply=true&include_roi=true&api_key=YOUR_API_KEY"
+            url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin['id']}&vs_currencies={exchange}&include_last_updated_at=true&include_24hr_change=true&include_24hr_vol=true&contract_addresses=0x495f947276749Ce646f68AC8c248420045cb7b5e&include_liquidity_rate=true&include_market_cap=true&include_trade_volume_24h=true&include_total_supply=true&include_circulating_supply=true&include_roi=true&api_key=YOUR_API_KEY"
             response = requests.get(url)
             if response.status_code == 200:
                 data = response.json()
                 # Add coin price to the 'prices' dictionary for the exchange
-                coin['prices'][exchange] = data[coin['id']]['usd']
+                if data.get(coin['id']):
+                    coin['prices'][exchange] = data[coin['id']]
+
         # Remove coins with no active trading markets
         coin['is_active'] = len(coin['prices']) > 0
 

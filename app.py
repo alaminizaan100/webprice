@@ -1,19 +1,15 @@
 from flask import Flask, render_template
 import requests
-from operator import itemgetter
-
-
-operator.__version__ = '2.0'
 
 app = Flask(__name__)
 
 def get_coins():
     # List of active trading coins
-    url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h"
-    coins = requests.get(url).json()
+    url = "https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=USD"
+    coins = requests.get(url).json()['Data']
 
     # List of exchanges to fetch coin prices from
-    exchanges = ['binance', 'kucoin', 'bitget', 'mexc global', 'bitstamp', 'bitfinex', 'get.io', 'bithumb', 'houbi', 'whitebit', 'exmo']
+    exchanges = ['Binance', 'Kucoin', 'Bitget', 'MEXC Global', 'Bitstamp', 'Bitfinex', 'Gate.io', 'Bithumb', 'Huobi', 'WhiteBIT', 'EXMO']
 
     result = []
     for coin in coins:
@@ -22,21 +18,21 @@ def get_coins():
         coin_dict['prices'] = {}
         for exchange in exchanges:
             # Fetch coin price from the exchange
-            url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin['id']}&vs_currencies={exchange}&include_last_updated_at=true&include_24hr_change=true&include_24hr_vol=true&include_liquidity_rate=true&include_market_cap=true&include_trade_volume_24h=true&include_total_supply=true&include_circulating_supply=true&include_roi=true"
+            url = f"https://min-api.cryptocompare.com/data/price?fsym={coin['CoinInfo']['Name']}&tsyms={exchange}"
             response = requests.get(url)
             if response.status_code == 200:
                 data = response.json()
                 # Add coin price to the 'prices' dictionary for the exchange
-                if data.get(coin['id']):
-                    coin_dict['prices'][exchange] = data[coin['id']]
+                if data.get(exchange):
+                    coin_dict['prices'][exchange] = data[exchange]
 
         # Remove coins with no active trading markets
         coin_dict['is_active'] = len(coin_dict['prices']) > 0
         if coin_dict['is_active']:
             # Add other keys to the coin dictionary
-            coin_dict['id'] = coin['id']
-            coin_dict['name'] = coin['name']
-            coin_dict['symbol'] = coin['symbol']
+            coin_dict['id'] = coin['CoinInfo']['Id']
+            coin_dict['name'] = coin['CoinInfo']['FullName']
+            coin_dict['symbol'] = coin['CoinInfo']['Name']
             result.append(coin_dict)
 
     return result
@@ -48,8 +44,8 @@ def index():
     for coin in coins:
         # Find the exchange with the lowest and highest coin price
         prices = coin['prices']
-        low_exchange = min(prices, key=prices.get)
-        high_exchange = max(prices, key=prices.get)
+        low_exchange = min(prices, key=lambda k: prices[k])
+        high_exchange = max(prices, key=lambda k: prices[k])
 
         # Calculate the price difference in percentage
         low_price = prices[low_exchange]
@@ -65,7 +61,7 @@ def index():
         coin['percentage_diff'] = round(percentage_diff, 2)
 
     # Sort coins by percentage difference
-    coins = sorted(coins, key=itemgetter('percentage_diff'), reverse=True)
+    coins = sorted(coins, key=lambda k: k['percentage_diff'], reverse=True)
 
     return render_template('index.html', coins=coins)
 

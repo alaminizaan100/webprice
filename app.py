@@ -6,7 +6,7 @@ app = Flask(__name__)
 def get_coins():
     try:
         url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h"
-        coins = requests.get(url, timeout=10).json()
+        coins = requests.get(url, timeout=200).json()
 
         exchanges = ['binance', 'kucoin', 'bitget', 'mexc global', 'bitstamp', 'bitfinex', 'get.io', 'bithumb', 'houbi', 'whitebit', 'exmo']
 

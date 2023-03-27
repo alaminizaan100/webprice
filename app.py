@@ -51,7 +51,10 @@ def index():
         # Calculate the price difference in percentage
         low_price = prices[low_exchange]
         high_price = prices[high_exchange]
-        percentage_diff = (high_price - low_price) / low_price * 100
+        if low_price == 0:
+            percentage_diff = float('inf')
+        else:
+            percentage_diff = (high_price - low_price) / low_price * 100
 
         # Add the lowest and highest exchange name and percentage difference to the coin dictionary
         coin['low_exchange'] = low_exchange
@@ -62,6 +65,7 @@ def index():
     coins = sorted(coins, key=itemgetter('percentage_diff'), reverse=True)
 
     return render_template('index.html', coins=coins)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

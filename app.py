@@ -1,50 +1,60 @@
 from flask import Flask, render_template
 import requests
+from operator import itemgetter
 
 app = Flask(__name__)
 
+def get_coins():
+    # List of active trading coins
+    url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h"
+    coins = requests.get(url).json()
+
+    # List of exchanges to fetch coin prices from
+    exchanges = ['binance', 'kucoin', 'bitget', 'mexc global', 'bitstamp', 'bitfinex', 'get.io', 'bithumb', 'houbi', 'whitebit', 'exmo']
+
+    for coin in coins:
+        # Add a new 'prices' key to each coin dictionary
+        coin['prices'] = {}
+        for exchange in exchanges:
+            # Fetch coin price from the exchange
+            url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin['id']}&vs_currencies=usd&include_last_updated_at=true&include_24hr_change=true&include_24hr_vol=true&contract_addresses=0x495f947276749Ce646f68AC8c248420045cb7b5e&include_liquidity_rate=true&include_market_cap=true&include_trade_volume_24h=true&include_total_supply=true&include_circulating_supply=true&include_roi=true&api_key=YOUR_API_KEY"
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                # Add coin price to the 'prices' dictionary for the exchange
+                coin['prices'][exchange] = data[coin['id']]['usd']
+        # Remove coins with no active trading markets
+        coin['is_active'] = len(coin['prices']) > 0
+
+    # Filter active trading coins
+    coins = [coin for coin in coins if coin['is_active']]
+
+    return coins
+
 @app.route('/')
 def index():
-    # Fetch the top 20 coins from CoinGecko API
-    url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false&price_change_percentage=1h%2C24h%2C7d%2C14d%2C30d%2C200d%2C1y'
-    response = requests.get(url)
-    coins = response.json()
-    
-    # Filter out only actively trading coins
-    coins = [coin for coin in coins if coin['is_active']]
-    
-    # Sort coins based on market cap
-    coins = sorted(coins, key=lambda x: x['market_cap'], reverse=True)
-    
-    # Fetch the price data for each coin on all exchanges
-    all_prices = {}
+    coins = get_coins()
+
     for coin in coins:
-        symbol = coin['symbol']
-        url = f'https://api.coingecko.com/api/v3/coins/{coin["id"]}/tickers'
-        response = requests.get(url)
-        tickers = response.json()['tickers']
-        
-        # Filter out non-USD trading pairs
-        tickers = [t for t in tickers if t['target'] == 'USD']
-        
-        # Find the highest and lowest price exchanges for the coin
-        highest_price = max(tickers, key=lambda x: x['last_trade']['p'])['market']['name']
-        lowest_price = min(tickers, key=lambda x: x['last_trade']['p'])['market']['name']
-        
-        # Compute the price difference percentage
-        highest_price_value = max(tickers, key=lambda x: x['last_trade']['p'])['last_trade']['p']
-        lowest_price_value = min(tickers, key=lambda x: x['last_trade']['p'])['last_trade']['p']
-        diff_percentage = round(((highest_price_value - lowest_price_value) / highest_price_value) * 100, 2)
-        
-        # Add the price data to the dictionary
-        all_prices[symbol] = {
-            'price': coin['current_price'],
-            'highest_price': highest_price,
-            'lowest_price': lowest_price,
-            'diff_percentage': diff_percentage
-        }
-    
-    return render_template('index.html', coins=all_prices)
+        # Find the exchange with the lowest and highest coin price
+        prices = coin['prices']
+        low_exchange = min(prices, key=prices.get)
+        high_exchange = max(prices, key=prices.get)
+
+        # Calculate the price difference in percentage
+        low_price = prices[low_exchange]
+        high_price = prices[high_exchange]
+        percentage_diff = (high_price - low_price) / low_price * 100
+
+        # Add the lowest and highest exchange name and percentage difference to the coin dictionary
+        coin['low_exchange'] = low_exchange
+        coin['high_exchange'] = high_exchange
+        coin['percentage_diff'] = round(percentage_diff, 2)
+
+    # Sort coins by percentage difference
+    coins = sorted(coins, key=itemgetter('percentage_diff'), reverse=True)
+
+    return render_template('index.html', coins=coins)
 
 if __name__ == '__main__':
     app.run(debug=True)

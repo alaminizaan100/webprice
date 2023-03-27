@@ -12,9 +12,11 @@ def get_coins():
     # List of exchanges to fetch coin prices from
     exchanges = ['binance', 'kucoin', 'bitget', 'mexc global', 'bitstamp', 'bitfinex', 'get.io', 'bithumb', 'houbi', 'whitebit', 'exmo']
 
+    result = []
     for coin in coins:
         # Add a new 'prices' key to each coin dictionary
-        coin['prices'] = {}
+        coin_dict = {}
+        coin_dict['prices'] = {}
         for exchange in exchanges:
             # Fetch coin price from the exchange
             url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin['id']}&vs_currencies={exchange}&include_last_updated_at=true&include_24hr_change=true&include_24hr_vol=true&include_liquidity_rate=true&include_market_cap=true&include_trade_volume_24h=true&include_total_supply=true&include_circulating_supply=true&include_roi=true"
@@ -23,15 +25,18 @@ def get_coins():
                 data = response.json()
                 # Add coin price to the 'prices' dictionary for the exchange
                 if data.get(coin['id']):
-                    coin['prices'][exchange] = data[coin['id']]
+                    coin_dict['prices'][exchange] = data[coin['id']]
 
         # Remove coins with no active trading markets
-        coin['is_active'] = len(coin['prices']) > 0
+        coin_dict['is_active'] = len(coin_dict['prices']) > 0
+        if coin_dict['is_active']:
+            # Add other keys to the coin dictionary
+            coin_dict['id'] = coin['id']
+            coin_dict['name'] = coin['name']
+            coin_dict['symbol'] = coin['symbol']
+            result.append(coin_dict)
 
-    # Filter active trading coins
-    coins = [coin for coin in coins if coin['is_active']]
-
-    return coins
+    return result
 
 @app.route('/')
 def index():
@@ -60,4 +65,3 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

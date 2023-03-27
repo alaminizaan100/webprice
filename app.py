@@ -83,3 +83,5 @@ def display_prices():
 
     # Render the HTML template with the prices
     return render_template('prices.html', prices=prices)
+if __name__ == '__main__':
+    app.run(debug=True)

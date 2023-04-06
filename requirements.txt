@@ -1,6 +1,6 @@
 
 asyncio
-Flask[async]
+flask
 ccxt
 gunicorn 
 aiohttp

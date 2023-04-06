@@ -1,9 +1,10 @@
-ccxt
+
 asyncio
-flask
+Flask[async]==2.1.1
+ccxt==1.63.39
 gunicorn 
 aiohttp
 websockets
 eventlet
-Flask==2.1.1
-ccxt==1.63.39
+
+

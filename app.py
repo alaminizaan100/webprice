@@ -58,7 +58,7 @@ def index():
     positive_count = sum(1 for item in data if item['arbitrage'] > 0)
     negative_count = sum(1 for item in data if item['arbitrage'] < 0)
 
-    print("Data:", data)
+   print("active coin here" active_currencies)
     return render_template('index.html', data=data, positive_count=positive_count, negative_count=negative_count)
 
 if __name__ == '__main__':

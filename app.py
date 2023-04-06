@@ -22,7 +22,7 @@ def index():
         'okex': ccxt.okex(),
         'huobipro': ccxt.huobipro(),
         'hitbtc': ccxt.hitbtc(),
-        'bibox': ccxt.bibox(),
+        #'bibox': ccxt.bibox(),
         'bithumb': ccxt.bithumb(),
         'upbit': ccxt.upbit(),
         'gateio': ccxt.gateio(),

@@ -1,50 +1,26 @@
+html
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Crypto Arbitrage</title>
+    <title>Coin Prices</title>
 </head>
 <body>
-    <h1>Crypto Prices</h1>
     <table>
-        <thead>
-            <tr>
-                <th>Coin</th>
-                {% for exchange in prices['Bitcoin'] %}
-                    <th>{{ exchange }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for coin in prices %}
-                <tr>
-                    <td>{{ coin }}</td>
-                    {% for exchange in prices[coin] %}
-                        <td>{{ prices[coin][exchange] }}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <h1>Crypto Arbitrage</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Coin</th>
-                {% for exchange in prices['Bitcoin'] %}
-                    <th>{{ exchange }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for coin in prices %}
-                <tr>
-                    <td>{{ coin }}</td>
-                    {% for exchange in prices[coin] %}
-                        <td>{{ arbitrage[coin][exchange] }}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
+        <tr>
+            <th>Symbol</th>
+            <th>Binance Price</th>
+            <th>Kucoin Price</th>
+            <th>Arbitrage (%)</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.symbol }}</td>
+            <td>{{ item.binance_price }}</td>
+            <td>{{ item.kucoin_price }}</td>
+            <td>{{ item.arbitrage }}</td>
+        </tr>
+        {% endfor %}
     </table>
 </body>
 </html>
+

@@ -5,9 +5,19 @@
 <html>
     <head>
         <title>Arbitrage Opportunities</title>
+        <style>
+            .positive {
+                color: green;
+            }
+            .negative {
+                color: red;
+            }
+        </style>
     </head>
     <body>
         <h1>Arbitrage Opportunities</h1>
+        <p>Positive opportunities: {{ positive_count }}</p>
+        <p>Negative opportunities: {{ negative_count }}</p>
         <table>
             <tr>
                 <th>Symbol</th>
@@ -20,12 +30,24 @@
                 <td>{{ item.symbol }}</td>
                 <td>{{ item.binance_price }}</td>
                 <td>{{ item.kucoin_price }}</td>
-                <td>{{ item.arbitrage }}%</td>
+                {% if item.arbitrage > 0 %}
+                <td class="positive">{{ item.arbitrage }}%</td>
+                {% else %}
+                <td class="negative">{{ item.arbitrage }}%</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
     </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 

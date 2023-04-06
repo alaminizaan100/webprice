@@ -26,9 +26,9 @@ def index():
       #  'bithumb': ccxt.bithumb(),
      #   'upbit': ccxt.upbit(),
       #  'gateio': ccxt.gateio(),
-     #   'zb': ccxt.zb(),
+        'zb': ccxt.zb(),
     #    'lbank': ccxt.lbank(),
-      #  'exmo': ccxt.exmo()
+        'exmo': ccxt.exmo()
     }
 
     tickers = {}

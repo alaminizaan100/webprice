@@ -11,7 +11,7 @@ def index():
     exchanges = {
         'binance': ccxt.binance(),
         'kucoin': ccxt.kucoin(),
-        'poloniex': ccxt.poloniex(),
+        'poloniex': ccxt.poloniex()
     }
 
     filtered_symbols = {}

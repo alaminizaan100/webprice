@@ -1,7 +1,7 @@
 
 asyncio
-Flask[async]==2.1.1
-ccxt==1.63.39
+Flask[async]
+ccxt
 gunicorn 
 aiohttp
 websockets

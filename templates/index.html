@@ -1,26 +1,35 @@
 
+
+html
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Coin Prices</title>
-</head>
-<body>
-    <table>
-        <tr>
-            <th>Symbol</th>
-            <th>Binance Price</th>
-            <th>Kucoin Price</th>
-            <th>Arbitrage (%)</th>
-        </tr>
-        {% for item in data %}
-        <tr>
-            <td>{{ item.symbol }}</td>
-            <td>{{ item.binance_price }}</td>
-            <td>{{ item.kucoin_price }}</td>
-            <td>{{ item.arbitrage }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
+    <head>
+        <title>Arbitrage Opportunities</title>
+    </head>
+    <body>
+        <h1>Arbitrage Opportunities</h1>
+        <table>
+            <tr>
+                <th>Symbol</th>
+                <th>Binance Price</th>
+                <th>Kucoin Price</th>
+                <th>Arbitrage</th>
+            </tr>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.symbol }}</td>
+                <td>{{ item.binance_price }}</td>
+                <td>{{ item.kucoin_price }}</td>
+                <td>{{ item.arbitrage }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
 </html>
+
+
+
+
+
+
 

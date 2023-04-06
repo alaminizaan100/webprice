@@ -28,6 +28,7 @@ def index():
     kucoin_prices = {item['symbol']: float(item['last']) for item in kucoin_data}
 
     common_symbols = set(binance_prices.keys()) & set(kucoin_prices.keys())
+    print("Common symbols:", common_symbols)
 
     data = []
     for symbol in common_symbols:

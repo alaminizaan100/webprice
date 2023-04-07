@@ -1,22 +1,32 @@
-
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Arbitrage Opportunities</title>
-    </head>
-    <body>
-        <h1>Arbitrage Opportunities</h1>
-        <table>
-            <tr>
-                <th>Symbol</th>
-                <th>Arbitrage</th>
-            </tr>
-            {% for opportunity in opportunities %}
-                <tr>
-                    <td>{{ opportunity.symbol }}</td>
-                    <td style="color: {% if opportunity.arbitrage > 0 %}green{% else %}red{% endif %}">{{ opportunity.arbitrage }}%</td>
-                </tr>
-            {% endfor %}
-        </table>
-    </body>
+<head>
+    <title>Arbitrage Opportunities</title>
+</head>
+<body>
+    <h1>Arbitrage Opportunities</h1>
+    <table>
+        <tr>
+            <th>Symbol</th>
+            <th>Arbitrage</th>
+            <th>Volume</th>
+            <th>Deposit</th>
+            <th>Trade</th>
+            <th>Withdraw</th>
+        </tr>
+        {% for opportunity in opportunities %}
+        <tr>
+            <td>{{ opportunity.symbol }}</td>
+            <td {% if opportunity.arbitrage > 0 %}style="color: green"{% else %}style="color: red"{% endif %}>{{ opportunity.arbitrage }}%</td>
+            <td>{{ opportunity.volume }}</td>
+            <td>{{ opportunity.deposit }}</td>
+            <td>{{ opportunity.trade }}</td>
+            <td>{{ opportunity.withdraw }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
 </html>
+
+
+

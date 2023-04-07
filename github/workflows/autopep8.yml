@@ -1,0 +1,21 @@
+name: Autopep8
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  autopep8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install autopep8
+        run: pip install autopep8
+      - name: Run autopep8
+        run: autopep8 --in-place --aggressive --aggressive app.py
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          message: 'Autopep8: apply code formatting'

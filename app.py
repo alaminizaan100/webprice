@@ -77,6 +77,6 @@ def index():
                     'max_trade_size': max_trade_size
                     })
 
-        return render_template('index.html', opportunities=opportunities)
+    return render_template('index.html', opportunities=opportunities)
 if __name__ == '__main__':
     app.run()

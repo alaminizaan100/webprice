@@ -11,7 +11,7 @@ def index():
             'apiKey': 'OtmdN18Tgx7VjnLyD4Ulc7ooNUaS0ezw38EZtTXvz0Eln4LxePIGCjOC95WG80OG',
             'secret': 'ShmYzH63927bieEp6SgHTDXv3hlEdkiePHMsSpdXpbviKNJbGpPSS6M3YSTACq4u'
         }),
-        'kucoin': ccxt.kucoin({
+        'poloniex': ccxt.poloniex({
             'apiKey': 'T4A9WHNH-LLJONLN7-6EXU0W1Q-YFXFGKUK',
             'secret': '306486a11913376228afebd2717d98fc7d2f6f7557744f52b925ff57a9f03d0eddd09c4c3221fe5acc1a0e3518d1f7c37ec610c7c7d6c3dc1b3628460cb1f001'
         })

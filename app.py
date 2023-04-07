@@ -8,8 +8,8 @@ app = Flask(__name__)
 def index():
     exchanges = {
         'binance': ccxt.binance(),
-        'kucoin': ccxt.kucoin(),
-        'poloniex': ccxt.poloniex()
+        'kucoin': ccxt.kucoin()
+        
     }
 
     tickers = {}

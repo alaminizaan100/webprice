@@ -47,36 +47,36 @@ def index():
     # Calculate arbitrage opportunities
     opportunities = []
     for symbol in filtered_coins:
-    binance_price = float(requests.get(f'{BINANCE_BASE_URL}/api/v3/ticker/price?symbol={symbol}').json()['price'])
-    poloniex_symbol = f'{symbol.split("/")[1]}_{symbol.split("/")[0]}'
-    if poloniex_symbol in poloniex_markets:
-        poloniex_price = float(poloniex_markets[poloniex_symbol]['last'])
-        binance_min_notional = float(requests.get(f'{BINANCE_BASE_URL}/api/v3/exchangeInfo?symbol={symbol}').json()['filters'][3]['minNotional'])
-        poloniex_min_trade_size = float(requests.get(f'{POLONIEX_BASE_URL}?command=returnTicker')[poloniex_symbol]['lowestAsk']) # change BTC_ETH to poloniex_symbol
-        # Determine minimum trade size
-        if binance_min_notional / binance_price < poloniex_min_trade_size:
-            min_trade_size = poloniex_min_trade_size
-        else:
-            min_trade_size = binance_min_notional / binance_price
-        # Determine maximum trade size
-        max_trade_size = min(filtered_coins[symbol]['volume'], 10 * min_trade_size)  # Arbitrage up to 10 times minimum trade size
-        # Calculate potential arbitrage profit
-        arbitrage = (poloniex_price - binance_price) / binance_price * 100
-        # Deduct trading fees, transfer fees, and minimum trade size
-        arbitrage -= fees[symbol]['binance_trading_fee'] + fees[symbol]['poloniex_trading_fee'] + fees[symbol]['withdrawal_fee']
-        # Filter opportunities with negative or too small arbitrage
-        if arbitrage > 0 and arbitrage > min_arbitrage and max_trade_size > min_trade_size:
-            opportunities.append({
-                'symbol': symbol,
-                'arbitrage': arbitrage,
-                'volume': filtered_coins[symbol]['volume'],
-                'deposit': filtered_coins[symbol]['deposit'],
-                'trade': True,
-                'withdraw': filtered_coins[symbol]['withdraw'],
-                'min_trade_size': min_trade_size,
-                'max_trade_size': max_trade_size
-            })
+    	binance_price = float(requests.get(f'{BINANCE_BASE_URL}/api/v3/ticker/price?symbol={symbol}').json()['price'])
+    	poloniex_symbol = f'{symbol.split("/")[1]}_{symbol.split("/")[0]}'
+        if poloniex_symbol in poloniex_markets:
+            poloniex_price = float(poloniex_markets[poloniex_symbol]['last'])
+            binance_min_notional = float(requests.get(f'{BINANCE_BASE_URL}/api/v3/exchangeInfo?symbol={symbol}').json()['filters'][3]['minNotional'])
+            poloniex_min_trade_size = float(requests.get(f'{POLONIEX_BASE_URL}?command=returnTicker')[poloniex_symbol]['lowestAsk']) # change BTC_ETH to poloniex_symbol
+            # Determine minimum trade size
+            if binance_min_notional / binance_price < poloniex_min_trade_size:
+                min_trade_size = poloniex_min_trade_size
+            else:
+                min_trade_size = binance_min_notional / binance_price
+            # Determine maximum trade size
+            max_trade_size = min(filtered_coins[symbol]['volume'], 10 * min_trade_size)  # Arbitrage up to 10 times minimum trade size
+            # Calculate potential arbitrage profit
+            arbitrage = (poloniex_price - binance_price) / binance_price * 100
+            # Deduct trading fees, transfer fees, and minimum trade size
+            arbitrage -= fees[symbol]['binance_trading_fee'] + fees[symbol]['poloniex_trading_fee'] + fees[symbol]['withdrawal_fee']
+            # Filter opportunities with negative or too small arbitrage
+            if arbitrage > 0 and arbitrage > min_arbitrage and max_trade_size > min_trade_size:
+                opportunities.append({
+                    'symbol': symbol,
+                    'arbitrage': arbitrage,
+                    'volume': filtered_coins[symbol]['volume'],
+                    'deposit': filtered_coins[symbol]['deposit'],
+                    'trade': True,
+                    'withdraw': filtered_coins[symbol]['withdraw'],
+                    'min_trade_size': min_trade_size,
+                    'max_trade_size': max_trade_size
+                    })
 
-return render_template('index.html', opportunities=opportunities)
+        return render_template('index.html', opportunities=opportunities)
 if __name__ == '__main__':
     app.run()

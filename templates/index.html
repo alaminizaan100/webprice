@@ -1,45 +1,43 @@
-
-
-
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Arbitrage Opportunities</title>
-        <style>
-            .positive {
-                color: green;
-            }
-            .negative {
-                color: red;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Arbitrage Opportunities</h1>
-        <p>Positive opportunities: {{ positive_count }}</p>
-        <p>Negative opportunities: {{ negative_count }}</p>
-        <table>
-            <tr>
-                <th>Symbol</th>
-                <th>Binance Price</th>
-                <th>Kucoin Price</th>
-                <th>Arbitrage</th>
-            </tr>
-            {% for item in data %}
-            <tr>
-                <td>{{ item.symbol }}</td>
-                <td>{{ item.binance_price }}</td>
-                <td>{{ item.kucoin_price }}</td>
-                {% if item.arbitrage > 0 %}
-                <td class="positive">{{ item.arbitrage }}%</td>
-                {% else %}
-                <td class="negative">{{ item.arbitrage }}%</td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-    </body>
+<head>
+	<title>Arbitrage Opportunities</title>
+</head>
+<body>
+	<h1>Arbitrage Opportunities</h1>
+	<p>Positive arbitrage opportunities: {{ positive_count }}</p>
+	<p>Negative arbitrage opportunities: {{ negative_count }}</p>
+	<table>
+		<tr>
+			<th>Symbol</th>
+			<th>Minimum Exchange</th>
+			<th>Minimum Price</th>
+			<th>Maximum Exchange</th>
+			<th>Maximum Price</th>
+			<th>Arbitrage (%)</th>
+		</tr>
+		{% for item in data %}
+		<tr>
+			<td>{{ item.symbol }}</td>
+			<td>{{ item.min_exchange }}</td>
+			<td>{{ item.min_price }}</td>
+			<td>{{ item.max_exchange }}</td>
+			<td>{{ item.max_price }}</td>
+			{% if item.arbitrage > 0 %}
+			<td style="color:green">{{ item.arbitrage }}%</td>
+			{% elif item.arbitrage < 0 %}
+			<td style="color:red">{{ item.arbitrage }}%</td>
+			{% else %}
+			<td>{{ item.arbitrage }}%</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+	</table>
+</body>
 </html>
+            
+
+
 
 
 

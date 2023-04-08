@@ -21,14 +21,14 @@ def index():
      #   'gemini': ccxt.gemini(),
      #   'okex': ccxt.okex(),
    #     'huobipro': ccxt.huobipro(),
-    #    'hitbtc': ccxt.hitbtc(),
+        'hitbtc': ccxt.hitbtc(),
         #'bibox': ccxt.bibox(),
       #  'bithumb': ccxt.bithumb(),
      #   'upbit': ccxt.upbit(),
       #  'gateio': ccxt.gateio(),
        # 'zb': ccxt.zb(),
     #    'lbank': ccxt.lbank(),
-        'exmo': ccxt.exmo()
+       # 'exmo': ccxt.exmo()
     }
 
     tickers = {}

@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template
 import requests
 
@@ -75,6 +74,9 @@ def index():
         poloniex_symbol = f'{symbol.split("/")[1]}_{symbol.split("/")[0]}'
         if poloniex_symbol in poloniex_markets:
             poloniex_price = float(poloniex_markets[poloniex_symbol]['last'])
+
+
+
             binance_min_notional = float(requests.get(
                 f'{BINANCE_BASE_URL}/api/v3/exchangeInfo?symbol={symbol}').json()['filters'][3]['minNotional'])
             poloniex_min_trade_size = float(requests.get(f'{POLONIEX_BASE_URL}?command=returnTicker')[
@@ -113,3 +115,4 @@ def index():
 
 if __name__ == '__main__':
     app.run()
+

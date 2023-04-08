@@ -11,7 +11,7 @@ def index():
     exchanges = {
       #  'binance': ccxt.binance(),
         #'kucoin': ccxt.kucoin(),
-        #'bittrex': ccxt.bittrex(),
+        'bittrex': ccxt.bittrex(),
         'poloniex': ccxt.poloniex(),
       #  'kraken': ccxt.kraken(),
      #   'bitfinex': ccxt.bitfinex(),
@@ -21,7 +21,7 @@ def index():
      #   'gemini': ccxt.gemini(),
      #   'okex': ccxt.okex(),
    #     'huobipro': ccxt.huobipro(),
-        'hitbtc': ccxt.hitbtc(),
+      #  'hitbtc': ccxt.hitbtc(),
         #'bibox': ccxt.bibox(),
       #  'bithumb': ccxt.bithumb(),
      #   'upbit': ccxt.upbit(),

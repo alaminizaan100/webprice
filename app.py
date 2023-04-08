@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     exchanges = {
-      #  'binance': ccxt.binance(),
+        'binance': ccxt.binance(),
         #'kucoin': ccxt.kucoin(),
         'bittrex': ccxt.bittrex(),
         'poloniex': ccxt.poloniex(),

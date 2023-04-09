@@ -12,7 +12,7 @@ def index():
         'binance': ccxt.binance(),
         #'kucoin': ccxt.kucoin(),
         #'bittrex': ccxt.bittrex(),
-        'poloniex': ccxt.poloniex(),
+       # 'poloniex': ccxt.poloniex(),
       #  'kraken': ccxt.kraken(),
      #   'bitfinex': ccxt.bitfinex(),
       #  'bitmex': ccxt.bitmex(),
@@ -25,7 +25,7 @@ def index():
         #'bibox': ccxt.bibox(),
       #  'bithumb': ccxt.bithumb(),
      #   'upbit': ccxt.upbit(),
-      #  'gateio': ccxt.gateio(),
+        'gateio': ccxt.gateio(),
        # 'zb': ccxt.zb(),
     #    'lbank': ccxt.lbank(),
        # 'exmo': ccxt.exmo()

@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     gateio = ccxt.gateio()
-    mexc_global = ccxt.mexc_global()
+    mexc_global = ccxt.mexc()
 
     try:
         gateio_markets = gateio.load_markets()

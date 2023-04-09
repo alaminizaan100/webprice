@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Arbitrage Opportunities</title>
+  </head>
+  <body>
+    <h1>Arbitrage Opportunities</h1>
+    <p>There are {{ positive_count }} positive and {{ negative_count }} negative arbitrage opportunities.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Gateio Price</th>
+          <th>MEXC Global Price</th>
+          <th>Arbitrage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{ item.symbol }}</td>
+            <td>{{ item.gateio_price }}</td>
+            <td>{{ item.mexc_price }}</td>
+            <td>{{ item.arbitrage }}%</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
